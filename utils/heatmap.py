@@ -8,7 +8,7 @@ import time
 
 
 class heatmap:
-    def __init__(self, w, chanel=3):
+    def __init__(self, w, chanel=3, limit_size=200):
         """creat a class for save heat map
 
         Args:
@@ -85,6 +85,7 @@ class heatmap:
         bounded = cv.resize(
             self.total[max(self.size - bound, 0) : self.size], None, fx=1, fy=r
         )
+
         return bounded
 
 

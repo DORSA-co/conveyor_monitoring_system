@@ -137,105 +137,105 @@ class Collector:
         device_info = self.camera.GetDeviceInfo()
         model = str(device_info.GetModelName())
         model = model[-3:]
-        # print(model[-3:])
-        try:
-            # print(self.camera.IsOpen())
-            # print(device_info.GetSerialNumber())
+        print(model[-3:], "*" * 20)
+        # try:
+        # print(self.camera.IsOpen())
+        # print(device_info.GetSerialNumber())
 
-            self.camera.Open()
-            if self.manual:
+        self.camera.Open()
+        if self.manual:
 
-                if model == "PRO":
-                    print("yes pro")
-                    # print(self.camera.DeviceTemperature.GetValue())
-                    self.camera.ExposureTime.SetValue(self.exposure)
+            if model == "PRO":
+                print("yes pro")
+                # print(self.camera.DeviceTemperature.GetValue())
+                self.camera.ExposureTime.SetValue(self.exposure)
 
-                    self.camera.Gain.SetValue(self.gain)
+                self.camera.Gain.SetValue(self.gain)
 
-                    # self.camera.GevSCPSPacketSize.SetValue(int(self.ps)+1000)
-                    # self.camera.Close()
-                    # self.camera.Open()
-                    self.camera.GevSCPSPacketSize.SetValue(int(self.ps))
-                    self.camera.Close()
-                    self.camera.Open()
+                # self.camera.GevSCPSPacketSize.SetValue(int(self.ps)+1000)
+                # self.camera.Close()
+                # self.camera.Open()
+                self.camera.GevSCPSPacketSize.SetValue(int(self.ps))
+                self.camera.Close()
+                self.camera.Open()
 
-                    self.camera.GevSCPD.SetValue(self.dp)
-                    self.camera.Close()
-                    self.camera.Open()
-                    self.camera.GevSCFTD.SetValue(self.ftd)
-                    self.camera.Close()
-                    self.camera.Open()
+                self.camera.GevSCPD.SetValue(self.dp)
+                self.camera.Close()
+                self.camera.Open()
+                self.camera.GevSCFTD.SetValue(self.ftd)
+                self.camera.Close()
+                self.camera.Open()
 
-                    self.camera.Width.SetValue(self.width)
-                    self.camera.Height.SetValue(self.height)
+                self.camera.Width.SetValue(self.width)
+                self.camera.Height.SetValue(self.height)
 
-                    self.camera.OffsetX.SetValue(self.offset_x)
-                    self.camera.OffsetY.SetValue(self.offset_y)
+                self.camera.OffsetX.SetValue(self.offset_x)
+                self.camera.OffsetY.SetValue(self.offset_y)
 
-                else:
+            else:
 
-                    self.camera.ExposureTimeAbs.SetValue(self.exposure)
-                    self.camera.GainRaw.SetValue(self.gain)
+                self.camera.ExposureTime.SetValue(self.exposure)
+                self.camera.Gain.SetValue(self.gain)
 
-                    self.camera.GevSCPSPacketSize.SetValue(int(self.ps) + 1000)
-                    self.camera.Close()
-                    self.camera.Open()
+                # self.camera.GevSCPSPacketSize.SetValue(int(self.ps) + 1000)
+                # self.camera.Close()
+                # self.camera.Open()
 
-                    self.camera.GevSCPD.SetValue(self.dp)
-                    self.camera.Close()
-                    self.camera.Open()
-                    self.camera.GevSCFTD.SetValue(self.ftd)
-                    self.camera.Close()
-                    self.camera.Open()
+                # self.camera.GevSCPD.SetValue(self.dp)
+                # self.camera.Close()
+                # self.camera.Open()
+                # self.camera.GevSCFTD.SetValue(self.ftd)
+                # self.camera.Close()
+                # self.camera.Open()
 
-                    self.camera.GevSCPSPacketSize.SetValue(int(self.ps))
-                    self.camera.Close()
-                    self.camera.Open()
-                    self.camera.Width.SetValue(self.width)
-                    self.camera.Height.SetValue(self.height)
+                # self.camera.GevSCPSPacketSize.SetValue(int(self.ps))
+                # self.camera.Close()
+                # self.camera.Open()
+                self.camera.Width.SetValue(self.width)
+                self.camera.Height.SetValue(self.height)
 
-                    self.camera.OffsetX.SetValue(self.offset_x)
-                    self.camera.OffsetY.SetValue(self.offset_y)
+                self.camera.OffsetX.SetValue(self.offset_x)
+                self.camera.OffsetY.SetValue(self.offset_y)
 
-            self.camera.Close()
+        self.camera.Close()
 
-            self.camera.StartGrabbing(pylon.GrabStrategy_LatestImageOnly)
+        self.camera.StartGrabbing(pylon.GrabStrategy_LatestImageOnly)
 
-            self.camera.Open()
+        # self.camera.Open()
 
-            if self.trigger == "Off":
-                self.camera.TriggerMode.SetValue("Off")
-            elif self.trigger == "On: Software":
-                self.camera.TriggerSelector.SetValue("FrameStart")
-                self.camera.TriggerMode.SetValue("On")
-                self.camera.TriggerSource.SetValue("Software")
-            elif self.trigger == "On: Hardware":
-                self.camera.TriggerSelector.SetValue("FrameStart")
-                self.camera.TriggerMode.SetValue("On")
-                self.camera.TriggerSource.SetValue("Hardware")
+        # if self.trigger == "Off":
+        #     self.camera.TriggerMode.SetValue("Off")
+        # elif self.trigger == "On: Software":
+        #     self.camera.TriggerSelector.SetValue("FrameStart")
+        #     self.camera.TriggerMode.SetValue("On")
+        #     self.camera.TriggerSource.SetValue("Software")
+        # elif self.trigger == "On: Hardware":
+        #     self.camera.TriggerSelector.SetValue("FrameStart")
+        #     self.camera.TriggerMode.SetValue("On")
+        #     self.camera.TriggerSource.SetValue("Hardware")
 
-            # if self.manual:
-            #     self.camera.ExposureTimeAbs.SetValue(20000)
+        # if self.manual:
+        #     self.camera.ExposureTimeAbs.SetValue(20000)
 
-            #     # self.camera.Width.SetValue(600)
-            #     print(self.camera.Width.GetValue())
-            #     self.camera.Width.SetValue(600)
-            #     # int64_t = self.camera.PayloadSize.GetValue()
-            #     # self.camera.GevStreamChannelSelectorCamera.GevStreamChannelSelector.SetValue( 'GevStreamChannelSelector_StreamChannel0 ')
-            #     # self.camera.GevSCPSPacketSize.SetValue(1500)
+        #     # self.camera.Width.SetValue(600)
+        #     print(self.camera.Width.GetValue())
+        #     self.camera.Width.SetValue(600)
+        #     # int64_t = self.camera.PayloadSize.GetValue()
+        #     # self.camera.GevStreamChannelSelectorCamera.GevStreamChannelSelector.SetValue( 'GevStreamChannelSelector_StreamChannel0 ')
+        #     # self.camera.GevSCPSPacketSize.SetValue(1500)
 
-            #     self.camera.GevSCPD.SetValue(self.dp)
+        #     self.camera.GevSCPD.SetValue(self.dp)
 
-            #     self.camera.GevSCFTD.SetValue(self.ftd)
-            self.exitCode = 0
+        #     self.camera.GevSCFTD.SetValue(self.ftd)
+        self.exitCode = 0
 
-        except genicam.GenericException as e:
-            # Error handling
-            print("An exception occurred.", e.GetDescription())
-            self.exitCode = 1
-            # self.eror_window('Check The Number of cameras',3)
+        # except genicam.GenericException as e:
+        #     # Error handling
+        #     print("An exception occurred.", e.GetDescription())
+        #     self.exitCode = 1
+        # self.eror_window('Check The Number of cameras',3)
 
-            # return self.exitCode
+        # return self.exitCode
 
     def stop_grabbing(self):
         self.camera.Close()
@@ -274,7 +274,7 @@ class Collector:
                 pass
             print(self.camera.GetQueuedBufferCount(), "T" * 100)
 
-    def getPictures(self, time_out=5000):
+    def getPictures(self, time_out=500):
         try:
 
             if DEBUG:
@@ -307,6 +307,8 @@ class Collector:
                     image = self.converter.Convert(grabResult)
                     img = image.Array
 
+                    return True, img
+
                 else:
                     img = np.zeros([1200, 1920, 3], dtype=np.uint8)
                     self.cont_eror += 1
@@ -315,15 +317,18 @@ class Collector:
             else:
                 print("erpr")
                 img = np.zeros([1200, 1920, 3], dtype=np.uint8)
+                return False, img
         except:
             print("eror")
+            img = np.zeros([1200, 1920, 3], dtype=np.uint8)
+            return False, img
 
         # print(self.camera.GetQueuedBufferCount(), 'f'*100)
         # time.sleep(0.1)
         # print(self.camera.GetQueuedBufferCount(), 'f'*100)
         # self.img = img
 
-        return img
+        return False, img
 
     def get_cam(self, i):
         return self.camera
@@ -347,14 +352,14 @@ def get_threading(cameras):
 if __name__ == "__main__":
 
     # get serial number of available cameras
-    collector = Collector(serial_number="0", list_devices_mode=True)
-    serials_list = collector.serialnumber()
-    print("available cameras:", serials_list)
+    # collector = Collector(serial_number="40079306", list_devices_mode=True)
+    # serials_list = collector.serialnumber()
+    # print("available cameras:", serials_list)
 
     collector = Collector(
-        serials_list[1],
+        "40079306",
         exposure=200,
-        gain=250,
+        gain=10,
         trigger=False,
         delay_packet=8988,
         packet_size=9000,
@@ -363,17 +368,15 @@ if __name__ == "__main__":
         width=1920,
         offet_x=0,
         offset_y=0,
-        manual=False,
+        manual=True,
         list_devices_mode=False,
     )
 
     collector.start_grabbing()
-
+    # asdsa
     while True:
 
-        img = collector.getPictures()
-        temp = collector.tempreture()
-        print("temp:", temp)
+        s, img = collector.getPictures()
 
-        # cv2.imshow('img1', cv2.resize( img, None, fx=0.2, fy=0.2 ))
+        cv2.imshow("img1", cv2.resize(img, None, fx=0.2, fy=0.2))
         cv2.waitKey(1000)

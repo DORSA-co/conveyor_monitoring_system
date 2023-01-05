@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main_UI.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.2.4
+## Created by: Qt User Interface Compiler version 6.4.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -25,14 +25,18 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(945, 677)
+        MainWindow.resize(938, 730)
         MainWindow.setStyleSheet(u"")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setStyleSheet(u"QPushButton{\n"
 "	border: none;\n"
 "}\n"
-"")
+"QPushButton:hover{\n"
+"\n"
+"	background: rgb(0, 0, 0);\n"
+"	border-radius : 5px;\n"
+" }")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -43,7 +47,7 @@ class Ui_MainWindow(object):
         self.header.setMaximumSize(QSize(16777215, 50))
         self.header.setCursor(QCursor(Qt.OpenHandCursor))
         self.header.setStyleSheet(u"QFrame{\n"
-"	background: #0C508B;\n"
+"	background: #3A3A3A;\n"
 "}\n"
 "\n"
 "")
@@ -58,9 +62,9 @@ class Ui_MainWindow(object):
         self.menu_btn.setMinimumSize(QSize(30, 30))
         self.menu_btn.setMaximumSize(QSize(30, 30))
         self.menu_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        self.menu_btn.setStyleSheet(u"")
+        self.menu_btn.setStyleSheet(u"color: rgb(0, 85, 127);")
         icon = QIcon()
-        icon.addFile(u"C:/Users/Dorsa-Admin/.designer/backup/images_icon/menu.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u"images_icon/grid.png", QSize(), QIcon.Normal, QIcon.Off)
         self.menu_btn.setIcon(icon)
         self.menu_btn.setIconSize(QSize(28, 29))
 
@@ -68,7 +72,7 @@ class Ui_MainWindow(object):
 
         self.frame_5 = QFrame(self.header)
         self.frame_5.setObjectName(u"frame_5")
-        self.frame_5.setMaximumSize(QSize(500, 16777215))
+        self.frame_5.setMaximumSize(QSize(538, 16777215))
         self.frame_5.setFrameShape(QFrame.StyledPanel)
         self.frame_5.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_3 = QHBoxLayout(self.frame_5)
@@ -90,6 +94,17 @@ class Ui_MainWindow(object):
         self.line.setFrameShadow(QFrame.Sunken)
 
         self.horizontalLayout_3.addWidget(self.line)
+
+        self.label_16 = QLabel(self.frame_5)
+        self.label_16.setObjectName(u"label_16")
+        self.label_16.setMinimumSize(QSize(0, 30))
+        self.label_16.setMaximumSize(QSize(76, 16777215))
+        self.label_16.setLineWidth(0)
+        self.label_16.setPixmap(QPixmap(u"images_icon/whitew.png"))
+        self.label_16.setScaledContents(True)
+        self.label_16.setMargin(-6)
+
+        self.horizontalLayout_3.addWidget(self.label_16)
 
         self.label_2 = QLabel(self.frame_5)
         self.label_2.setObjectName(u"label_2")
@@ -123,7 +138,13 @@ class Ui_MainWindow(object):
         self.minimize_btn.setCursor(QCursor(Qt.PointingHandCursor))
         self.minimize_btn.setStyleSheet(u"QPushButton{\n"
 "	padding: 5px;\n"
-"}")
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"\n"
+"	background: rgb(0, 0, 0);\n"
+"	border-radius : 5px;\n"
+" }")
         icon1 = QIcon()
         icon1.addFile(u"icons/cil-minus.png", QSize(), QIcon.Normal, QIcon.Off)
         self.minimize_btn.setIcon(icon1)
@@ -138,7 +159,14 @@ class Ui_MainWindow(object):
         self.maximize_btn.setCursor(QCursor(Qt.PointingHandCursor))
         self.maximize_btn.setStyleSheet(u"QPushButton{\n"
 "	padding: 5px;\n"
-"}")
+"}\n"
+"\n"
+"\n"
+"QPushButton:hover{\n"
+"\n"
+"	background: rgb(0, 0, 0);\n"
+"	border-radius : 5px;\n"
+" }")
         icon2 = QIcon()
         icon2.addFile(u"icons/cil-rectangle.png", QSize(), QIcon.Normal, QIcon.Off)
         self.maximize_btn.setIcon(icon2)
@@ -156,7 +184,9 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QPushButton:hover{\n"
-"	background: #F70000;\n"
+"\n"
+"	background: rgb(0, 0, 0);\n"
+"	border-radius : 5px;\n"
 " }")
         icon3 = QIcon()
         icon3.addFile(u"icons/cil-x.png", QSize(), QIcon.Normal, QIcon.Off)
@@ -185,7 +215,7 @@ class Ui_MainWindow(object):
         self.menubar_frame.setMinimumSize(QSize(0, 44))
         self.menubar_frame.setMaximumSize(QSize(16777215, 44))
         self.menubar_frame.setStyleSheet(u"QFrame{\n"
-"	background:#4649FF;\n"
+"	background:#3D8361;\n"
 "}\n"
 "\n"
 "QPushButton{\n"
@@ -194,14 +224,15 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QPushButton:hover{\n"
-"	background: #a3a3a3;\n"
+"	color:#3de500;\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
 "	background: rgb(0, 0, 0);\n"
+"	border-radius : 5px;\n"
 "}")
         self.menubar_frame.setFrameShape(QFrame.NoFrame)
-        self.menubar_frame.setFrameShadow(QFrame.Raised)
+        self.menubar_frame.setFrameShadow(QFrame.Plain)
         self.horizontalLayout = QHBoxLayout(self.menubar_frame)
         self.horizontalLayout.setSpacing(10)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -210,10 +241,18 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer_3)
 
+        self.line_6 = QFrame(self.menubar_frame)
+        self.line_6.setObjectName(u"line_6")
+        self.line_6.setMaximumSize(QSize(16777215, 30))
+        self.line_6.setFrameShape(QFrame.VLine)
+        self.line_6.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout.addWidget(self.line_6)
+
         self.BTN_dashboard = QPushButton(self.menubar_frame)
         self.BTN_dashboard.setObjectName(u"BTN_dashboard")
         self.BTN_dashboard.setMinimumSize(QSize(0, 0))
-        self.BTN_dashboard.setMaximumSize(QSize(16777215, 16777215))
+        self.BTN_dashboard.setMaximumSize(QSize(16777215, 26))
         font1 = QFont()
         font1.setPointSize(11)
         font1.setBold(True)
@@ -227,10 +266,18 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.BTN_dashboard)
 
+        self.line_3 = QFrame(self.menubar_frame)
+        self.line_3.setObjectName(u"line_3")
+        self.line_3.setMaximumSize(QSize(16777215, 30))
+        self.line_3.setFrameShape(QFrame.VLine)
+        self.line_3.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout.addWidget(self.line_3)
+
         self.BTN_camera_setting = QPushButton(self.menubar_frame)
         self.BTN_camera_setting.setObjectName(u"BTN_camera_setting")
         self.BTN_camera_setting.setMinimumSize(QSize(0, 0))
-        self.BTN_camera_setting.setMaximumSize(QSize(16777215, 16777215))
+        self.BTN_camera_setting.setMaximumSize(QSize(16777215, 26))
         self.BTN_camera_setting.setFont(font1)
         self.BTN_camera_setting.setCursor(QCursor(Qt.PointingHandCursor))
         self.BTN_camera_setting.setStyleSheet(u"")
@@ -241,11 +288,19 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.BTN_camera_setting)
 
+        self.line_4 = QFrame(self.menubar_frame)
+        self.line_4.setObjectName(u"line_4")
+        self.line_4.setMaximumSize(QSize(16777215, 30))
+        self.line_4.setFrameShape(QFrame.VLine)
+        self.line_4.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout.addWidget(self.line_4)
+
         self.BTN_general_setting = QPushButton(self.menubar_frame)
         self.BTN_general_setting.setObjectName(u"BTN_general_setting")
         self.BTN_general_setting.setEnabled(False)
         self.BTN_general_setting.setMinimumSize(QSize(0, 0))
-        self.BTN_general_setting.setMaximumSize(QSize(16777215, 16777215))
+        self.BTN_general_setting.setMaximumSize(QSize(16777215, 26))
         self.BTN_general_setting.setFont(font1)
         self.BTN_general_setting.setCursor(QCursor(Qt.PointingHandCursor))
         self.BTN_general_setting.setStyleSheet(u"")
@@ -256,10 +311,18 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.BTN_general_setting)
 
+        self.line_5 = QFrame(self.menubar_frame)
+        self.line_5.setObjectName(u"line_5")
+        self.line_5.setMaximumSize(QSize(16777215, 30))
+        self.line_5.setFrameShape(QFrame.VLine)
+        self.line_5.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout.addWidget(self.line_5)
+
         self.BTN_history = QPushButton(self.menubar_frame)
         self.BTN_history.setObjectName(u"BTN_history")
         self.BTN_history.setMinimumSize(QSize(0, 0))
-        self.BTN_history.setMaximumSize(QSize(16777215, 16777215))
+        self.BTN_history.setMaximumSize(QSize(16777215, 26))
         self.BTN_history.setFont(font1)
         self.BTN_history.setCursor(QCursor(Qt.PointingHandCursor))
         self.BTN_history.setStyleSheet(u"")
@@ -269,6 +332,14 @@ class Ui_MainWindow(object):
         self.BTN_history.setIconSize(QSize(40, 40))
 
         self.horizontalLayout.addWidget(self.BTN_history)
+
+        self.line_7 = QFrame(self.menubar_frame)
+        self.line_7.setObjectName(u"line_7")
+        self.line_7.setMaximumSize(QSize(16777215, 30))
+        self.line_7.setFrameShape(QFrame.VLine)
+        self.line_7.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout.addWidget(self.line_7)
 
         self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -287,9 +358,19 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.line_9 = QFrame(self.main_frame)
+        self.line_9.setObjectName(u"line_9")
+        self.line_9.setMinimumSize(QSize(0, 2))
+        self.line_9.setMaximumSize(QSize(16777215, 2))
+        self.line_9.setFrameShadow(QFrame.Plain)
+        self.line_9.setLineWidth(2)
+        self.line_9.setFrameShape(QFrame.HLine)
+
+        self.verticalLayout_3.addWidget(self.line_9)
+
         self.stackedWidget = QStackedWidget(self.main_frame)
         self.stackedWidget.setObjectName(u"stackedWidget")
-        self.stackedWidget.setStyleSheet(u"background-color: #8BBCCC;")
+        self.stackedWidget.setStyleSheet(u"background-color:#F1F1F1;")
         self.general_setting = QWidget()
         self.general_setting.setObjectName(u"general_setting")
         self.verticalLayout_35 = QVBoxLayout(self.general_setting)
@@ -412,19 +493,44 @@ class Ui_MainWindow(object):
         self.Dashboard = QWidget()
         self.Dashboard.setObjectName(u"Dashboard")
         self.horizontalLayout_7 = QHBoxLayout(self.Dashboard)
+        self.horizontalLayout_7.setSpacing(3)
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.horizontalLayout_7.setContentsMargins(0, 0, 0, 0)
         self.frame_7 = QFrame(self.Dashboard)
         self.frame_7.setObjectName(u"frame_7")
         self.frame_7.setMaximumSize(QSize(50, 16777215))
+        self.frame_7.setStyleSheet(u"\n"
+"QPushButton{\n"
+"	color: white;\n"
+"	padding: 5px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"	color:#3de500;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background: rgb(0, 0, 0);\n"
+"	border-radius : 5px;\n"
+"}")
         self.frame_7.setFrameShape(QFrame.NoFrame)
         self.frame_7.setFrameShadow(QFrame.Plain)
         self.verticalLayout_7 = QVBoxLayout(self.frame_7)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.line_8 = QFrame(self.frame_7)
+        self.line_8.setObjectName(u"line_8")
+        self.line_8.setFrameShape(QFrame.HLine)
+        self.line_8.setFrameShadow(QFrame.Sunken)
+
+        self.verticalLayout_7.addWidget(self.line_8)
+
         self.camera_live_btn = QPushButton(self.frame_7)
         self.camera_live_btn.setObjectName(u"camera_live_btn")
         self.camera_live_btn.setMinimumSize(QSize(0, 22))
+        self.camera_live_btn.setMaximumSize(QSize(16777215, 28))
         self.camera_live_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        self.camera_live_btn.setStyleSheet(u"background-color:transparent;")
         icon8 = QIcon()
         icon8.addFile(u"icons/camera_disconnected.png", QSize(), QIcon.Normal, QIcon.Off)
         self.camera_live_btn.setIcon(icon8)
@@ -442,7 +548,7 @@ class Ui_MainWindow(object):
         font2.setBold(True)
         self.BTN_scane_start.setFont(font2)
         self.BTN_scane_start.setCursor(QCursor(Qt.PointingHandCursor))
-        self.BTN_scane_start.setStyleSheet(u"")
+        self.BTN_scane_start.setStyleSheet(u"background-color:transparent;")
         icon9 = QIcon()
         icon9.addFile(u"images_icon/qr-code-scan.png", QSize(), QIcon.Normal, QIcon.Off)
         self.BTN_scane_start.setIcon(icon9)
@@ -457,7 +563,7 @@ class Ui_MainWindow(object):
         self.BTN_scan_stop.setMaximumSize(QSize(16777215, 16777215))
         self.BTN_scan_stop.setFont(font2)
         self.BTN_scan_stop.setCursor(QCursor(Qt.PointingHandCursor))
-        self.BTN_scan_stop.setStyleSheet(u"")
+        self.BTN_scan_stop.setStyleSheet(u"background-color:transparent;")
         icon10 = QIcon()
         icon10.addFile(u"icons/stop-button.png", QSize(), QIcon.Normal, QIcon.Off)
         self.BTN_scan_stop.setIcon(icon10)
@@ -481,31 +587,21 @@ class Ui_MainWindow(object):
 
         self.frame_6 = QFrame(self.Dashboard)
         self.frame_6.setObjectName(u"frame_6")
-        self.frame_6.setFrameShape(QFrame.NoFrame)
-        self.frame_6.setFrameShadow(QFrame.Plain)
+        self.frame_6.setFrameShape(QFrame.StyledPanel)
+        self.frame_6.setFrameShadow(QFrame.Raised)
         self.verticalLayout_9 = QVBoxLayout(self.frame_6)
         self.verticalLayout_9.setObjectName(u"verticalLayout_9")
-        self.verticalLayout_9.setContentsMargins(1, 1, 1, 21)
-        self.frame_21 = QFrame(self.frame_6)
-        self.frame_21.setObjectName(u"frame_21")
-        self.frame_21.setMinimumSize(QSize(0, 300))
-        self.frame_21.setFrameShape(QFrame.StyledPanel)
-        self.frame_21.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_27 = QHBoxLayout(self.frame_21)
-        self.horizontalLayout_27.setObjectName(u"horizontalLayout_27")
-        self.LBL_live_camera = QLabel(self.frame_21)
+        self.LBL_live_camera = QLabel(self.frame_6)
         self.LBL_live_camera.setObjectName(u"LBL_live_camera")
         self.LBL_live_camera.setFrameShape(QFrame.Box)
+        self.LBL_live_camera.setPixmap(QPixmap(u"../images_icon/no_image.png"))
         self.LBL_live_camera.setScaledContents(True)
 
-        self.horizontalLayout_27.addWidget(self.LBL_live_camera)
-
-
-        self.verticalLayout_9.addWidget(self.frame_21)
+        self.verticalLayout_9.addWidget(self.LBL_live_camera)
 
         self.frame_80 = QFrame(self.frame_6)
         self.frame_80.setObjectName(u"frame_80")
-        self.frame_80.setMinimumSize(QSize(0, 80))
+        self.frame_80.setMinimumSize(QSize(0, 150))
         self.frame_80.setFrameShape(QFrame.Panel)
         self.frame_80.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_28 = QHBoxLayout(self.frame_80)
@@ -598,7 +694,7 @@ class Ui_MainWindow(object):
         self.sett_cam_scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 244, 437))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 300, 446))
         self.horizontalLayout_20 = QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
         self.verticalLayout_11 = QVBoxLayout()
@@ -749,7 +845,7 @@ class Ui_MainWindow(object):
 "	background:#a3a3a3;\n"
 "}")
         icon13 = QIcon()
-        icon13.addFile(u"C:/Users/Dorsa-Admin/.designer/icons/refresh(1).png", QSize(), QIcon.Normal, QIcon.Off)
+        icon13.addFile(u"images_icon/refresh(1).png", QSize(), QIcon.Normal, QIcon.Off)
         self.setting_refresh_available_cams_btn.setIcon(icon13)
 
         self.horizontalLayout_22.addWidget(self.setting_refresh_available_cams_btn)
@@ -763,7 +859,7 @@ class Ui_MainWindow(object):
         self.expo_spinbox.setMinimumSize(QSize(0, 30))
         self.expo_spinbox.setMaximumSize(QSize(16777215, 30))
         palette = QPalette()
-        brush = QBrush(QColor(139, 188, 204, 255))
+        brush = QBrush(QColor(241, 241, 241, 255))
         brush.setStyle(Qt.SolidPattern)
         palette.setBrush(QPalette.Active, QPalette.Button, brush)
         palette.setBrush(QPalette.Active, QPalette.Base, brush)
@@ -790,8 +886,8 @@ class Ui_MainWindow(object):
         self.expo_spinbox.setFont(font4)
         self.expo_spinbox.setCursor(QCursor(Qt.PointingHandCursor))
         self.expo_spinbox.setAlignment(Qt.AlignCenter)
-        self.expo_spinbox.setMaximum(20000)
-        self.expo_spinbox.setSingleStep(1)
+        self.expo_spinbox.setMaximum(200000)
+        self.expo_spinbox.setSingleStep(9)
 
         self.verticalLayout_12.addWidget(self.expo_spinbox)
 
@@ -1120,7 +1216,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.scrollAreaWidgetContents_5 = QWidget()
         self.scrollAreaWidgetContents_5.setObjectName(u"scrollAreaWidgetContents_5")
-        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 241, 158))
+        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 302, 181))
         self.horizontalLayout_14 = QHBoxLayout(self.scrollAreaWidgetContents_5)
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
         self.frame_20 = QFrame(self.scrollAreaWidgetContents_5)
@@ -1401,12 +1497,12 @@ class Ui_MainWindow(object):
         self.camera_calib_btn.setObjectName(u"camera_calib_btn")
         self.camera_calib_btn.setEnabled(True)
         self.camera_calib_btn.setMinimumSize(QSize(0, 0))
-        self.camera_calib_btn.setMaximumSize(QSize(16777215, 16777215))
+        self.camera_calib_btn.setMaximumSize(QSize(16777215, 28))
         self.camera_calib_btn.setFont(font2)
         self.camera_calib_btn.setCursor(QCursor(Qt.PointingHandCursor))
         self.camera_calib_btn.setStyleSheet(u"")
         icon15 = QIcon()
-        icon15.addFile(u"C:/Users/Dorsa-Admin/.designer/backup/images_icon/camera_disconnected.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon15.addFile(u"images_icon/camera_disconnected.png", QSize(), QIcon.Normal, QIcon.Off)
         self.camera_calib_btn.setIcon(icon15)
         self.camera_calib_btn.setIconSize(QSize(51, 48))
 
@@ -1424,14 +1520,14 @@ class Ui_MainWindow(object):
         self.BTN_camera_connect.setObjectName(u"BTN_camera_connect")
         self.BTN_camera_connect.setEnabled(False)
         self.BTN_camera_connect.setMinimumSize(QSize(0, 0))
-        self.BTN_camera_connect.setMaximumSize(QSize(16777215, 16777215))
+        self.BTN_camera_connect.setMaximumSize(QSize(16777215, 28))
         self.BTN_camera_connect.setFont(font2)
         self.BTN_camera_connect.setCursor(QCursor(Qt.PointingHandCursor))
         self.BTN_camera_connect.setStyleSheet(u"")
         icon16 = QIcon()
-        icon16.addFile(u"C:/Users/Dorsa-Admin/.designer/backup/images_icon/play-button.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon16.addFile(u"images_icon/play-button.png", QSize(), QIcon.Normal, QIcon.Off)
         self.BTN_camera_connect.setIcon(icon16)
-        self.BTN_camera_connect.setIconSize(QSize(35, 35))
+        self.BTN_camera_connect.setIconSize(QSize(24, 35))
 
         self.horizontalLayout_51.addWidget(self.BTN_camera_connect)
 
@@ -1447,14 +1543,14 @@ class Ui_MainWindow(object):
         self.BTN_camera_disconnect.setObjectName(u"BTN_camera_disconnect")
         self.BTN_camera_disconnect.setEnabled(False)
         self.BTN_camera_disconnect.setMinimumSize(QSize(0, 0))
-        self.BTN_camera_disconnect.setMaximumSize(QSize(16777215, 16777215))
+        self.BTN_camera_disconnect.setMaximumSize(QSize(16777215, 28))
         self.BTN_camera_disconnect.setFont(font2)
         self.BTN_camera_disconnect.setCursor(QCursor(Qt.PointingHandCursor))
         self.BTN_camera_disconnect.setStyleSheet(u"")
         icon17 = QIcon()
-        icon17.addFile(u"C:/Users/Dorsa-Admin/.designer/backup/images_icon/stop-button.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon17.addFile(u"images_icon/stop-button.png", QSize(), QIcon.Normal, QIcon.Off)
         self.BTN_camera_disconnect.setIcon(icon17)
-        self.BTN_camera_disconnect.setIconSize(QSize(35, 35))
+        self.BTN_camera_disconnect.setIconSize(QSize(24, 35))
 
         self.horizontalLayout_51.addWidget(self.BTN_camera_disconnect)
 
@@ -1703,7 +1799,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollAreaWidgetContents_3 = QWidget()
         self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
-        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 98, 28))
+        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 278, 510))
         self.verticalLayout_21 = QVBoxLayout(self.scrollAreaWidgetContents_3)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_20 = QVBoxLayout()
@@ -1749,7 +1845,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollAreaWidgetContents_7 = QWidget()
         self.scrollAreaWidgetContents_7.setObjectName(u"scrollAreaWidgetContents_7")
-        self.scrollAreaWidgetContents_7.setGeometry(QRect(0, 0, 98, 28))
+        self.scrollAreaWidgetContents_7.setGeometry(QRect(0, 0, 586, 465))
         self.gridLayout_2 = QGridLayout(self.scrollAreaWidgetContents_7)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout = QGridLayout()
@@ -1791,7 +1887,7 @@ class Ui_MainWindow(object):
         self.status_frame.setMinimumSize(QSize(0, 60))
         self.status_frame.setMaximumSize(QSize(16777215, 60))
         self.status_frame.setStyleSheet(u"QFrame{\n"
-"	background:#0C508B;\n"
+"	background:#3A3A3A;\n"
 "}")
         self.status_frame.setFrameShape(QFrame.NoFrame)
         self.status_frame.setFrameShadow(QFrame.Raised)
@@ -1827,6 +1923,7 @@ class Ui_MainWindow(object):
         font6 = QFont()
         font6.setPointSize(11)
         self.msg_label.setFont(font6)
+        self.msg_label.setStyleSheet(u"background-color: #3D8361;")
         self.msg_label.setFrameShape(QFrame.WinPanel)
         self.msg_label.setFrameShadow(QFrame.Sunken)
 
@@ -1867,8 +1964,8 @@ class Ui_MainWindow(object):
         self.horizontalSlider_8.valueChanged.connect(self.threshold_2_spin.setValue)
         self.threshold_2_spin.valueChanged.connect(self.horizontalSlider_8.setValue)
 
-        self.stackedWidget.setCurrentIndex(1)
-        self.tabWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1881,6 +1978,7 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.menu_btn.setText("")
         self.label.setText("")
+        self.label_16.setText("")
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Online Conveyor Monitoring System", None))
 #if QT_CONFIG(tooltip)
         self.minimize_btn.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Minimize</p></body></html>", None))

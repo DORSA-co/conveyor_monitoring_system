@@ -132,6 +132,10 @@ class Collector:
             # print('temp',self.camera.TemperatureAbs.GetValue())
             return self.camera.TemperatureAbs.GetValue()
 
+
+
+
+
     def start_grabbing(self):
 
         device_info = self.camera.GetDeviceInfo()
@@ -145,34 +149,6 @@ class Collector:
         self.camera.Open()
         if self.manual:
 
-            if model == "PRO":
-                print("yes pro")
-                # print(self.camera.DeviceTemperature.GetValue())
-                self.camera.ExposureTime.SetValue(self.exposure)
-
-                self.camera.Gain.SetValue(self.gain)
-
-                # self.camera.GevSCPSPacketSize.SetValue(int(self.ps)+1000)
-                # self.camera.Close()
-                # self.camera.Open()
-                self.camera.GevSCPSPacketSize.SetValue(int(self.ps))
-                self.camera.Close()
-                self.camera.Open()
-
-                self.camera.GevSCPD.SetValue(self.dp)
-                self.camera.Close()
-                self.camera.Open()
-                self.camera.GevSCFTD.SetValue(self.ftd)
-                self.camera.Close()
-                self.camera.Open()
-
-                self.camera.Width.SetValue(self.width)
-                self.camera.Height.SetValue(self.height)
-
-                self.camera.OffsetX.SetValue(self.offset_x)
-                self.camera.OffsetY.SetValue(self.offset_y)
-
-            else:
 
                 self.camera.ExposureTime.SetValue(self.exposure)
                 self.camera.Gain.SetValue(self.gain)
@@ -236,6 +212,20 @@ class Collector:
         # self.eror_window('Check The Number of cameras',3)
 
         # return self.exitCode
+
+    def update_exposure(self,val):
+        self.exposure=val
+        self.camera.ExposureTime.SetValue(self.exposure)
+
+    def upadte_gain(self,val):
+        self.gain=val
+        self.camera.Gain.SetValue(self.gain)
+    def update_offsetx(self,val):
+        self.offset_x=val
+        self.camera.OffsetX.SetValue(self.offset_x)
+    def update_offsety(self,val):
+        self.offset_y=val
+        self.camera.OffsetY.SetValue(self.offset_y)
 
     def stop_grabbing(self):
         self.camera.Close()

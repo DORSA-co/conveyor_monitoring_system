@@ -55,7 +55,7 @@ os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100
 # SOME FLAGES
 DEBUG_UI = False
 WRITE = False
-GET_LIVE_PICTURE = False
+GET_LIVE_PICTURE = True
 
 # algo param:
 mean_index = 10
@@ -233,6 +233,38 @@ class UI_main_window(QMainWindow, ui):
 
         self.segment_detail_list = {}
 
+
+
+        self.expo_spinbox.valueChanged.connect(lambda: self.update_camera_parms('exposure'))
+        self.gain_spinbox.valueChanged.connect(lambda: self.update_camera_parms('gain'))
+        self.offsetx_spinbox.valueChanged.connect(lambda: self.update_camera_parms('offsetx'))
+        self.offsety_spinbox.valueChanged.connect(lambda: self.update_camera_parms('offsety'))
+
+
+
+    def update_camera_parms(self,parm):
+        if parm == 'exposure':
+            try:
+                self.camera.update_exposure(self.expo_spinbox.value())
+            except:
+                pass
+        elif parm == 'gain':
+            try:
+                self.camera.upadte_gain(self.gain_spinbox.value())
+            except:
+                pass 
+        elif parm == 'offsetx':
+            try:
+                self.camera.update_offsetx(self.offsetx_spinbox.value())
+            except:
+                pass 
+
+        elif parm == 'offsety':
+            try:
+                self.camera.update_offsety(self.offsety_spinbox.value())
+            except:
+                pass 
+
     # ___________________________________________segment handling part
     def create_segment_slider(self):
 
@@ -240,7 +272,7 @@ class UI_main_window(QMainWindow, ui):
         i = 0
         image_per_row = self.image_pre_row
         frame_longitudinal_precision = self.frame_per_roll // self.frame_pre_segment
-
+        font = cv2.FONT_HERSHEY_SIMPLEX
         for i in range(frame_longitudinal_precision):
 
             segment_shematic = np.ones((224, 224, 3), np.uint8)
@@ -249,25 +281,28 @@ class UI_main_window(QMainWindow, ui):
             segment_shematic[:, :, 2] = 237
             segment_shematic = cv2.cvtColor(segment_shematic, cv2.COLOR_RGB2BGR)
 
+            color_put_text = (0, 80, 0)
+            thickness = 1
+
             ranges = "{}".format(i * self.frame_pre_segment)
             temp = cv2.putText(
                 segment_shematic,
                 ranges,
-                (100, 70),
+                (80, 50),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
-                (0, 0, 0),
-                4,
+                color_put_text,
+                thickness,
             )
             ranges = "{}".format((i + 1) * self.frame_pre_segment)
             temp = cv2.putText(
                 segment_shematic,
                 ranges,
-                (100, 170),
+                (80, 200),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
-                (0, 0, 0),
-                4,
+                color_put_text,
+                thickness,
             )
             if not (os.path.exists(os.path.join(segments_info, str(i)))):
                 os.mkdir(os.path.join(segments_info, str(i)))
@@ -461,9 +496,11 @@ class UI_main_window(QMainWindow, ui):
     def maxmize_minimize(self):
         """Maximize or Minimize window"""
         if self.isMaximized():
-
+            self.frame_80.setFixedHeight(150)
             self.showNormal()
         else:
+            self.frame_80.setFixedHeight(260)
+
             self.showMaximized()
 
     def set_warning(self, label_name, text, level=1):
@@ -475,26 +512,29 @@ class UI_main_window(QMainWindow, ui):
             if level == 1:
                 label_name.setText(" " + text + " ")
                 label_name.setStyleSheet(
-                    "background-color:#20a740;border-radius:2px;color:white"
+                    # "color : #20a740"
+                    "background-color:#3D8361;color : #20a740;border-radius:2px;color:white"
                 )
 
             if level == 2:
                 label_name.setText(" Warning: " + text)
                 label_name.setStyleSheet(
-                    "background-color:#FDFFA9;border-radius:2px;color:black"
+                    # "color : #FDFFA9"
+                   "background-color:#3D8361;color : #FDFFA9;border-radius:2px;color:black"
                 )
 
             if level >= 3:
                 label_name.setText(" ERROR : " + text)
                 label_name.setStyleSheet(
-                    "background-color:#D9534F;border-radius:2px;color:black"
+                    # "color : #D9534F"
+                   "background-color:#3D8361;color : #D9534F;border-radius:2px;color:black"
                 )
             QTimer.singleShot(2000, lambda: self.set_warning(label_name, None))
             # threading.Timer(2, self.set_warning, args=(None, name)).start()
 
         else:
             label_name.setText("")
-            label_name.setStyleSheet("")
+            label_name.setStyleSheet("background-color: #3D8361;")
 
     def set_image_label(self, label_name, img):
         """set imnage in input label
@@ -626,7 +666,7 @@ class UI_main_window(QMainWindow, ui):
             height=height,
             offet_x=offsetx,
             offset_y=offsrty,
-            manual=True,
+            manual=False,
             list_devices_mode=False,
         )
         # try:
@@ -809,6 +849,7 @@ class UI_main_window(QMainWindow, ui):
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         except:
+            self.timer_live_detect.stop()
             status = False
             print("in exception loop!!!!!! ,there is problem for getting picture")
         if status:
@@ -1022,7 +1063,7 @@ class UI_main_window(QMainWindow, ui):
         self.index_slider = temp // self.image_pre_row
 
     def stop_live(self):
-        if self.live_flag:
+        if not self.live_flag:
             self.timer_live.stop()
             self.set_live_flag = False
             print("stop live")
@@ -1141,18 +1182,23 @@ class UI_main_window(QMainWindow, ui):
                 else:
                     self.set_warning(
                         label_name=self.msg_label,
-                        text="cannot connect to camera",
+                        text="cannot connect to camera   -----------------",
                         level=2,
                     )
                     self.eror_img = 0
                     self.sett_cam_size.setText("-")
                     self.sett_cam_fps.setText("-")
             except:
+
+                # self.set_btn_image(self.camera_calib_btn, image_close_camera)
+                # self.set_btn_image(self.camera_live_btn, image_close_camera)
+                # self.enable_disable_camera_btns(False)
                 self.set_warning(
                     label_name=self.msg_label,
                     text="cannot connect to camera",
                     level=2,
                 )
+                # 280533219
                 self.eror_img = 0
                 self.sett_cam_size.setText("-")
                 self.sett_cam_fps.setText("-")

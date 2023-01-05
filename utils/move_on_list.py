@@ -110,7 +110,7 @@ class moveOnImagrList:
         def next_on_list():
 
             if self.idxs[name] + self.step < len(self.lists[name]):
-                print(len(self.lists[name]))
+                # print(len(self.lists[name]))
                 self.idxs[name] += self.step
 
             # self.idxs[name]=min(self.idxs[name],len(self.lists[name])-1)
@@ -152,7 +152,6 @@ class moveOnImagrList:
         :return: _description_
         :rtype: _type_
         """
-
         mylist = self.lists[name]
         mylist_annots = self.lists_annots[name]
         idx = self.idxs[name]

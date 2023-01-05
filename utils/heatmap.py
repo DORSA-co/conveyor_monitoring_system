@@ -8,7 +8,7 @@ import time
 
 
 class heatmap:
-    def __init__(self, w, chanel=3, limit_size=200):
+    def __init__(self, w, chanel=3, creat_total_32=False):
         """creat a class for save heat map
 
         Args:
@@ -19,6 +19,13 @@ class heatmap:
         self.size = 0
         self.capacity = 4
         self.total = np.zeros((self.capacity, w, self.chanel), dtype=np.uint8)
+        self.h_total = np.zeros((w, self.capacity, self.chanel), dtype=np.uint8)
+
+        if creat_total_32:
+            self.size_32 = 0
+            self.capacity_32 = 4
+            self.total_32 = np.zeros((self.capacity, w, self.chanel), dtype=np.uint32)
+            self.h_total_32 = np.zeros((w, self.capacity, self.chanel), dtype=np.uint32)
 
     def addArray(self, row):
         """add heatmap of a row to saved image but not time optimized for large size
@@ -45,7 +52,6 @@ class heatmap:
         Args:
             row (numpy array): a numpy array in shape(width,)
         """
-        # t1 = time.time()
         row = np.array(row, dtype=np.uint8)
         if colormap != None:
             row = cv.applyColorMap(row, colormap)
@@ -54,23 +60,87 @@ class heatmap:
             newdata = np.zeros((self.capacity, self.width, self.chanel), dtype=np.uint8)
             newdata[: self.size] = self.total
             self.total = newdata
-        # print(row[:,0].shape)
-        # print(self.total[self.size].shape)
+            # _____________________related to h-part
+            h_newdata = np.zeros(
+                (self.width, self.capacity, self.chanel), dtype=np.uint8
+            )
+            h_newdata[:, 0 : self.size, :] = self.h_total
+            self.h_total = h_newdata
+            # _____________________
         if colormap != None:
             self.total[self.size] = row[:, 0]
         else:
             row = row.reshape(self.width, self.chanel)
             self.total[self.size] = row[:]
+            # _____________________related to h-part
+
+            self.h_total[:, self.size, :] = row[:]
+            # _____________________
         self.size += 1
 
-        # t2=time.time()
-        # print(f' add run time: {t2-t1}')
+    # ___________________________________________________________________#32 bit part for z-pivots
+    def optimiezedAdd_32_bits(self, row, colormap=cv.COLORMAP_JET):
+
+        row = np.array(row, dtype=np.uint32)
+        if colormap != None:
+            row = cv.applyColorMap(row, colormap)
+        if self.size_32 == self.capacity_32:
+            self.capacity_32 *= 4
+            newdata = np.zeros(
+                (self.capacity_32, self.width, self.chanel), dtype=np.uint32
+            )
+            newdata[: self.size_32] = self.total_32
+            self.total_32 = newdata
+
+            # _____________________related to h-part
+            h_newdata = np.zeros(
+                (self.width, self.capacity_32, self.chanel), dtype=np.uint32
+            )
+            h_newdata[:, 0 : self.size_32, :] = self.h_total_32
+            self.h_total_32 = h_newdata
+            # _____________________
+
+        if colormap != None:
+            self.total_32[self.size_32] = row[:, 0]
+        else:
+            row = row.reshape(self.width, self.chanel)
+            self.total_32[self.size_32] = row[:]
+            # _____________________related to h-part
+
+            self.h_total_32[:, self.size_32, :] = row[:]
+            # _____________________
+        self.size_32 += 1
+
+    def getmatrix_32_bit(self, r):
+
+        temp = self.total_32[0 : self.size_32].astype(np.uint8)
+        bounded = cv.resize(temp, None, fx=1, fy=r)
+        return bounded
+
+    def getmatrix_32_bit_h(self, r):
+        temp = self.h_total_32[:, 0 : self.size_32].astype(np.uint8)
+        bounded = cv.resize(temp, None, fx=r, fy=1)
+        return bounded
+
+    def reset_32bit_part(self):
+
+        self.size_32 = 0
+        self.capacity_32 = 4
+        self.total_32 = np.zeros(
+            (self.capacity_32, self.width, self.chanel), dtype=np.uint32
+        )
+        self.h_total_32 = np.zeros(
+            (self.width, self.capacity_32, self.chanel), dtype=np.uint32
+        )
 
     def reset(self):
         """clear the saved image"""
         self.size = 0
         self.capacity = 4
         self.total = np.zeros((self.capacity, self.width, self.chanel), dtype=np.uint8)
+        self.h_total = np.zeros(
+            (self.width, self.capacity, self.chanel), dtype=np.uint8
+        )
 
     def getImage(self, bound, r):
         """return a image(width = self.width and height = bound*r) stored in  a numpy array
@@ -88,12 +158,10 @@ class heatmap:
 
         return bounded
 
+    def get_hImage(self, bound, r):
 
-# import matplotlib.pyplot as plt
-# import numpy as np
-# import cv2
+        bounded = cv.resize(
+            self.h_total[:, max(self.size - bound, 0) : self.size, :], None, fx=r, fy=1
+        )
 
-# mask = np.zeros((1200, 1000), np.uint8)
-# print(mask.shape)
-# cv2.imshow("xxx", mask)
-# k = cv2.waitKey(0)
+        return bounded

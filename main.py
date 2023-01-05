@@ -1,9 +1,9 @@
 import sys
-import cv2,random
+import cv2, random
 import numpy as np
-import threading,datetime
-
-
+import threading, datetime
+from datetime import datetime
+import time
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -23,7 +23,6 @@ from PySide6.QtGui import QIcon as sQIcon
 from PySide6.QtGui import QIntValidator as sQIntValidator
 from PySide6 import QtCore as sQtCore
 from PySide6.QtCore import QObject, QThread, Signal
-
 from utils.heatmap import heatmap
 from utils.laserScaner import ProfileMeter
 from utils.camera_connection import Collector
@@ -33,6 +32,8 @@ from utils.slider import (
     create_image_slider_on_ui,
     update_defect_images_on_ui,
     set_image_to_ui_slider_full_path,
+    set_label_style,
+    update_imagesslider_on_ui,
 )
 from functools import partial
 from popup_window import UI_popup_window
@@ -46,66 +47,55 @@ PATH_DEFECT_SPLIT = r"defect_split"
 NO_IMAGE = cv2.imread(r"UI\images_icon\no_image.png")
 image_open_camera = "UI\images_icon\camera_connected.png"
 image_close_camera = "UI\images_icon\camera_disconnected.png"
-
-
-MIN_DEFECT_AREA = 0
-MIN_DEFECT_WIDTH = 0
-MIN_DEFECT_HEIGHT = 0
-
+segments_info = r"segments_info"
 
 ui, _ = loadUiType("UI/main_UI.ui")
 os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100%
 
-
+# SOME FLAGES
 DEBUG_UI = False
-WRITE = True
+WRITE = False
+GET_LIVE_PICTURE = False
 
-
-
-
-
-
-
-
+# algo param:
 mean_index = 10
-
 weights = np.zeros((mean_index, WIDTH))
 weights[0 : mean_index // 3, :] = 1
 weights[mean_index // 3 : 2 * (mean_index // 3)] = 10
 weights[2 * (mean_index // 3), :] = 20
-
-row_5 = np.zeros((mean_index, WIDTH))
-
-
-def average_moveing_contour(cnt, k_pre_points, mask_raw):
-
-    for i, _ in enumerate(cnt):
-        # if cnt[i : i + k_pre_points, 0, 0].shape[0] == k_pre_points:
-        x_ = cnt[i : i + k_pre_points, 0, 0].mean()
-        y_ = cnt[i : i + k_pre_points, 0, 1].mean()
-        # else:
-        #     x_ = cnt[i, 0, 0]
-        #     y_ = cnt[i, 0, 1]
-        mask_raw[int(y_), int(x_)] = 255
-
-    return mask_raw
+stack_row = np.zeros((mean_index, WIDTH))
 
 
+limited_deviation_from_base = 30
+disputed_pixel_threshold = 10
+final_output_medianBlur_kernel = 5
+final_output_threshold_kernel = 240
+# _______________________________________________
 
 
+def moving_average(a, n=50):
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return (ret[n - 1 :] / n).astype("uint32")
 
+
+def average_moveing_contour(cnt):
+
+    x = moving_average(cnt[:, 0, 0])
+    y = moving_average(cnt[:, 0, 1])
+    return x, y
 
 
 class UI_main_window(QMainWindow, ui):
     global widgets
     widgets = ui
     x = 0
-    _i_ = -1
 
-    image_path = 'D:/Newfolder3'
-
-
+    # ______________temp vars for image loading________________________
+    image_index = 0
+    image_path = r"images\Newfolder3"
     temp_image_folder = os.listdir(image_path)
+    # ______________temp vars for image loading________________________
 
     def __init__(self):
         """
@@ -120,29 +110,21 @@ class UI_main_window(QMainWindow, ui):
         self.setWindowFlags(flags)
         self.activate_()
         self.statusBar().setMaximumHeight(5)
+
         # algo parameter
-        self.laser_detector_threshold = 12.56
-        self.norm_level_value = 210
-        self.threshold1 = 0
-        self.threshold2 = 200
-        ################
+        self.laser_detector_threshold = 1
+        self.laser_detector_medianBlur_kernel = 5
+
         self.create_path = True
         if not os.path.exists(PATH_DEFECT_SPLIT):
             os.mkdir(PATH_DEFECT_SPLIT)
-        # popup windwo
+
+        # popup window
         self.popup_window_obj = UI_popup_window()
-        # self.popup_window_obj.show()
-        
-
-        #json object
-
-        self.json_obj = Annotation()
-
 
         # database obj
         self.db = dataBase()
         self.eror_img = 0
-
         self.camera = None
 
         self.qimage = QImage(
@@ -152,6 +134,10 @@ class UI_main_window(QMainWindow, ui):
         self.pixmap = self.pixmap.scaled(
             NO_IMAGE.shape[0], NO_IMAGE.shape[1], Qt.KeepAspectRatio
         )
+
+        # self.current_h_segment = np.ones((WIDTH, SHOW_BOUND), np.uint8) * 255
+        self.current_segment = np.ones((SHOW_BOUND, WIDTH, 3), np.uint8) * 255
+        self.flag_draw_defect = False
 
         # self.LBL_live_camera.setPixmap(self.pixmap)
         # self.LBL_live_camera_for_setting_image_quality.setPixmap(self.pixmap)
@@ -165,10 +151,21 @@ class UI_main_window(QMainWindow, ui):
         self.speed_rate = 100 / (self.rate * 14 * self.fps)  # cm per frame
         self.belt_height = 10000
         ###################################################################
+        # position param................................
         self.num_frames = 0
         self.process_flag = False
-        self.frame_per_roll = 200
+        self.frame_per_roll = 500
+        self.index_of_scanning_segment = -1
+        self.index_slider = 0
+        self.segment_index = 0
+        self.frame_pre_segment = 30
+        self.image_pre_row = 6
+        # ______________________________???
+        self.length_of_conveyor = 30000  # length of conveyor in cm unit
 
+        self.first_point = 0
+        self.update_step = int(SHOW_BOUND // self.rate)
+        self.last_point = self.update_step
         ###################################################################
 
         # camera setting##############################
@@ -181,6 +178,10 @@ class UI_main_window(QMainWindow, ui):
         self.mask = heatmap(WIDTH, chanel=1)
 
         self.set_image_label(self.LBL_live_camera, NO_IMAGE)
+
+        # __________________________________
+        self.z_heatmap = heatmap(WIDTH, chanel=1, creat_total_32=True)
+        # __________________________________
 
         self._old_pos = None
         self.pos_ = self.pos()
@@ -203,111 +204,157 @@ class UI_main_window(QMainWindow, ui):
         self.defect_slider_show = QTimer(self)
         self.defect_slider_show.timeout.connect(self.UpDate_Slider)
         self.current_image_list = []
-        self.json_list=[]
+        self.json_list = []
 
-        # self.parent_path =os.path.join(PATH_DEFECT_SPLIT,self.create_folder())
-
-        # self.defect_slider_show_2 = QTimer(self)
-        # self.defect_slider_show_2.timeout.connect(self.update_slider_2)
-        # self.current_image_list = []
-
-        # self.timer_live.start(200)
-
-        # self.defect_image_list = moveOnImagrList(
-        #     sub_directory="slider_images/", step=6
-        # )
-        # name = 'slider_images'
-        # self.defect_image_list.add(
-        #     mylist=self.defect_image_list,
-        #     name=name,
-        # )
-        # # create next and prev funcs
-        # --------------------------slider image
-
-        self.defect_split_path = []
-        self.name = "defect"
-        # for img in os.listdir(PATH_DEFECT_SPLIT):                     # enable if you want show last iamges in init
-        #     if img[-3:]=='jpg':
-        #         self.defect_split_path.append(os.path.join(PATH_DEFECT_SPLIT, img))
-
-        self.defect_image_list = moveOnImagrList(
-            sub_directory=PATH_DEFECT_SPLIT,
+        self.segment_path = []
+        self.create_segment_slider()
+        self.segment_name = "segment"
+        self.segment_image_list = moveOnImagrList(
+            sub_directory=segments_info,
         )
-        self.defect_image_list.add(self.defect_split_path, self.name)
-        self.defect_image_list_next_func = self.defect_image_list.build_next_func(
-            name=self.name
+        self.segment_image_list.add(self.segment_path, self.segment_name)
+        self.segment_image_list_next_func = self.segment_image_list.build_next_func(
+            name=self.segment_name
         )
-        self.defect_image_list_prev_func = self.defect_image_list.build_prev_func(
-            name=self.name
+        self.segment_image_list_prev_func = self.segment_image_list.build_prev_func(
+            name=self.segment_name
         )
-        self.create_slider()
-        update_defect_images_on_ui(ui_obj=self)
-        # -----------------------------------
-
-        self.defects_prev_btn.clicked.connect(
-            partial(lambda: update_defect_images_on_ui(ui_obj=self, prevornext="prev"))
+        update_imagesslider_on_ui(ui_obj=self)
+        self.defects_prev_btn_3.clicked.connect(
+            partial(lambda: update_imagesslider_on_ui(ui_obj=self, prevornext="prev"))
         )
-        self.defects_next_btn.clicked.connect(
-            partial(lambda: update_defect_images_on_ui(ui_obj=self, prevornext="next"))
+        self.defects_next_btn_3.clicked.connect(
+            partial(lambda: update_imagesslider_on_ui(ui_obj=self, prevornext="next"))
         )
-
 
         self.width_spinbox.valueChanged.connect(self.update_pixel_value)
         self.spinBox_pixel_value.valueChanged.connect(self.update_pixel_value)
-
         self.BTN_history.clicked.connect(self.load_history)
 
+        self.segment_detail_list = {}
 
+    # ___________________________________________segment handling part
+    def create_segment_slider(self):
 
+        self.segment_annotation = Annotation()
+        i = 0
+        image_per_row = self.image_pre_row
+        frame_longitudinal_precision = self.frame_per_roll // self.frame_pre_segment
 
+        for i in range(frame_longitudinal_precision):
+
+            segment_shematic = np.ones((224, 224, 3), np.uint8)
+            segment_shematic[:, :, 0] = 225
+            segment_shematic[:, :, 1] = 230
+            segment_shematic[:, :, 2] = 237
+            segment_shematic = cv2.cvtColor(segment_shematic, cv2.COLOR_RGB2BGR)
+
+            ranges = "{}".format(i * self.frame_pre_segment)
+            temp = cv2.putText(
+                segment_shematic,
+                ranges,
+                (100, 70),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 0),
+                4,
+            )
+            ranges = "{}".format((i + 1) * self.frame_pre_segment)
+            temp = cv2.putText(
+                segment_shematic,
+                ranges,
+                (100, 170),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 0),
+                4,
+            )
+            if not (os.path.exists(os.path.join(segments_info, str(i)))):
+                os.mkdir(os.path.join(segments_info, str(i)))
+                cv2.imwrite(os.path.join(segments_info, str(i), str(i) + ".jpg"), temp)
+            self.segment_path.append(
+                os.path.join(segments_info, str(i), str(i) + ".jpg")
+            )
+
+        if (self.frame_per_roll % self.frame_pre_segment) != 0:
+            ranges = "{}".format((i + 1) * self.frame_pre_segment)
+            segment_shematic = np.ones((224, 224, 3), np.uint8)
+            segment_shematic[:, :, 0] = 225
+            segment_shematic[:, :, 1] = 230
+            segment_shematic[:, :, 2] = 237
+            segment_shematic = cv2.cvtColor(segment_shematic, cv2.COLOR_RGB2BGR)
+            temp = cv2.putText(
+                segment_shematic,
+                ranges,
+                (100, 70),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 0),
+                4,
+            )
+            temp = cv2.putText(
+                segment_shematic,
+                str(self.frame_per_roll),
+                (100, 170),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 0),
+                4,
+            )
+            if not (os.path.exists(os.path.join(segments_info, str(i + 1)))):
+                os.mkdir(os.path.join(segments_info, str(i + 1)))
+                cv2.imwrite(
+                    os.path.join(segments_info, str(i + 1), str(i + 1) + ".jpg"), temp
+                )
+            self.segment_path.append(
+                os.path.join(segments_info, str(i + 1), str(i + 1) + ".jpg")
+            )
+        if frame_longitudinal_precision <= image_per_row:
+            image_per_row = frame_longitudinal_precision
+        self.slider = create_image_slider_on_ui(
+            ui_obj=self,
+            db_obj=self.db,
+            frame_obj=self.segment_list_slider_frame,
+            prefix="segment",
+            image_per_row=image_per_row,
+        )
+
+    # ___________________________________________
     def update_pixel_value(self):
-        
-        
-        val = int(self.label_width_p_value.text())/self.spinBox_pixel_value.value() 
-        self.label_pixel_value.setText(str(round(val,1)))
 
+        val = int(self.label_width_p_value.text()) / self.spinBox_pixel_value.value()
+        self.label_pixel_value.setText(str(round(val, 1)))
 
     def create_folder(self):
-        from datetime import datetime
-        x =datetime.now()
-        path_part=x.strftime("%Y-%m-%d-%H-%M-%S")
+        """this function used to creat folder for saveing recoeds
 
+        Returns
+        -------
+        str
+            path of folder,that created
+        """
+        x = datetime.now()
+        path_part = x.strftime("%Y-%m-%d-%H-%M-%S")
         path = os.path.join(PATH_DEFECT_SPLIT, path_part)
 
-        print('first_path',path)
+        if self.create_path == True:
 
-        if self.create_path==True:
-            print('create_path')
             if not os.path.exists(path):
-                
                 os.mkdir(path)
-                self.path=path
-                self.create_path=False
+                self.create_path = False
                 try:
-                    
                     print("Directory '% s' created" % self.path)
                 except:
-                    print('eror')
-                    # notif.setText('Eror : {}/cam_{}_*.tiff '.format(directory,cam))
+                    print("eror")
 
-            elif os.path.exists(path):
-                
-                # directory = str(slab_id) +'_'+ '{}'.format(x)
-                # print(directory)
-                # path = os.path.join(self.parent_dir, directory)
-                # print('path',path)
-                # os.mkdir(path)
-
-                self.create_path=False
-
-                # self.path=path
+            self.create_path = False
+            self.path = path
 
         return self.path
 
-
     def set_laser_detector_threshold(self):
         self.laser_detector_threshold = float(self.spinBox_laserDTH_2.value())
-        print(self.laser_detector_threshold)
+        # print(self.laser_detector_threshold)
 
     def create_slider(self):
 
@@ -450,15 +497,20 @@ class UI_main_window(QMainWindow, ui):
             label_name.setStyleSheet("")
 
     def set_image_label(self, label_name, img):
-        """set imnage in input label"""
-        # if len(img.shape) != 3:
-        #     img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-        try:
-            h, w, ch = img.shape
-        except:
-            h, w = img.shape
+        """set imnage in input label
+
+        Parameters
+        ----------
+        label_name :label OBJ???
+            object of label that ,you wnat to set image on it
+        img : np.ndarray
+            the image that you wnat to set it on label
+        """
+
+        img = img.astype(np.uint8)
+        if len(img.shape) != 3:
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            ch=3
+        h, w, ch = img.shape
         bytes_per_line = ch * w
         convert_to_Qt_format = sQImage(
             img.data, w, h, bytes_per_line, sQImage.Format_RGB888
@@ -601,284 +653,251 @@ class UI_main_window(QMainWindow, ui):
 
     def set_live_image(self):
 
-        # try:
-        status, img = self.camera.getPictures()
-        # status = True
-        # if self._i_ == len(self.temp_image_folder) - 1:
-        #     self._i_ = -1
-        # self._i_ += 1
+        try:
+            if GET_LIVE_PICTURE:
+                status, img = self.camera.getPictures()
+            else:
+                status = True
+                if self.image_index == len(self.temp_image_folder):
+                    self.image_index = 0
 
-        # img = cv2.imread(os.path.join(self.image_path, self.temp_image_folder[self._i_]))
-        if status:
-            gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            laser_mask = self.profile.laser_detetctor(
-                gray_img, self.laser_detector_threshold
+                img = cv2.imread(
+                    os.path.join(
+                        self.image_path, self.temp_image_folder[self.image_index]
+                    )
+                )
+                self.image_index += 1
+
+            if status:
+                gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                laser_mask = self.profile.laser_detetctor(
+                    gray_img, self.laser_detector_threshold
+                )
+                pts = self.profile.extract_points_mean(laser_mask)
+                mean_img = self.profile.pts2img(pts, laser_mask.shape)
+
+                self.set_image_label(
+                    self.LBL_live_camera_for_setting_image_quality, img
+                )
+                self.set_image_label(self.LBL_area_laser_detected_2, laser_mask)
+                self.set_image_label(self.LBL_line_laser_detected_2, mean_img)
+                self.sett_cam_fps.setText(
+                    str(round(self.camera.camera.ResultingFrameRate.GetValue(), 2))
+                )
+                h, w, _ = img.shape
+                self.sett_cam_size.setText(str(h) + " x " + str(w))
+            else:
+                self.eror_img += 1
+                self.sett_cam_errors.setText(str(self.eror_img))
+                self.sett_cam_size.setText("-")
+
+        except:
+            self.set_image_label(
+                self.LBL_live_camera_for_setting_image_quality, NO_IMAGE
             )
-            pts = self.profile.extract_points_mean(laser_mask)
-            mean_img = self.profile.pts2img(pts, laser_mask.shape)
-
-            self.set_image_label(self.LBL_live_camera_for_setting_image_quality, img)
-            self.set_image_label(self.LBL_area_laser_detected_2, laser_mask)
-            self.set_image_label(self.LBL_line_laser_detected_2, mean_img)
-            self.sett_cam_fps.setText(
-                str(round(self.camera.camera.ResultingFrameRate.GetValue(), 2))
-            )
-            h, w, _ = img.shape
-            self.sett_cam_size.setText(str(h) + " x " + str(w))
-        else:
-            self.eror_img += 1
-            self.sett_cam_errors.setText(str(self.eror_img))
-            self.sett_cam_size.setText("-")
-
-    # except:
-    #     self.set_image_label(
-    #         self.LBL_live_camera_for_setting_image_quality, NO_IMAGE
-    #     )
-    #     self.set_image_label(self.LBL_area_laser_detected_2, NO_IMAGE)
-    #     self.set_image_label(self.LBL_line_laser_detected_2, NO_IMAGE)
+            self.set_image_label(self.LBL_area_laser_detected_2, NO_IMAGE)
+            self.set_image_label(self.LBL_line_laser_detected_2, NO_IMAGE)
 
     def mask_gen(self, frame):
-        # return frame
+        """algo function,indicate err on belt
+
+        Parameters
+        ----------
+        frame : np.ndarray
+            frame .......
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
+
+        # indicate laser zone of image
         laser_mask = self.profile.laser_detetctor(
-            frame, thresh=1
+            frame,
+            thresh=self.laser_detector_threshold,
+            medianBlur_kernel=self.laser_detector_medianBlur_kernel,
         )
-        
-        # if self.checkBox_median_1.isChecked():
-        laser_mask = cv2.medianBlur(laser_mask, 5)
+
         if DEBUG_UI:
-            cv2.imshow('laser_mask',laser_mask)
+            cv2.imshow("laser_mask", laser_mask)
 
-        # return laser_mask
-
+        # get x-y-z cordinations from laser mask
         pts = self.profile.extract_points_mean(laser_mask)
         self.profile.save_points(pts)
         xyz_current = self.profile.get_cloudPoints_current()
 
-        row = np.zeros(WIDTH)
+        # ___________________________ extracts each Z pivots_______________________________#
+        row = np.zeros(WIDTH, dtype=np.uint32)
         row[xyz_current[:, 0]] = xyz_current[:, 2]
+        # z-pivot capture
+        z_row_array = np.array((row), dtype=np.uint32)
+        self.z_heatmap.optimiezedAdd_32_bits(z_row_array, colormap=None)
+        z_pivots = self.z_heatmap.getmatrix_32_bit(self.rate)
+        # z_pivots_h = self.z_heatmap.getmatrix_32_bit_h(self.rate)
+        # self.set_image_label(self.LBL_live_camera_2, z_pivots_h)
+        # self.set_image_label(self.LBL_live_camera, z_pivots)
+        # if DEBUG_UI:
+        # cv2.imshow("z pivots", z_pivots)
+        # _____________________________
+        # self.z_heatmap.optimiezedAdd_32_bits(mask, colormap=None)
+        # x = self.z_heatmap.getmatrix_32_bit_h(self.rate)
+        # _____________________________
 
-
-
-        j=self.num_frames
-        
-        row2 = row.copy()
+        # detecting err algo
         row_temp = np.ones(WIDTH) * 255
-
-        if j < mean_index:
-            row1 = row.copy()
-            xxx = np.array((255 * row1 / row1.max()), dtype=np.uint8)
-            self.mask.optimiezedAdd(xxx, colormap=None)
-            row_5[j, :] = row
+        # capture first base line for calculating mean base
+        if self.num_frames < mean_index:
+            temp = np.array((255 * (row / row.max())), dtype=np.uint8)
+            self.mask.optimiezedAdd(temp, colormap=None)
+            stack_row[self.num_frames, :] = row
         else:
-            # x = np.mean(row_5, axis=0)
+            # now has base mean
+            base = np.average(stack_row, axis=0, weights=weights)
+            row_temp[np.where((row - base) > limited_deviation_from_base)] = 0
+            mask = np.array((255 * row_temp / row_temp.max()), dtype=np.uint8)
 
-            x = np.average(row_5, axis=0, weights=weights)
-            row_temp[np.where((row2 - x) > 30)] = 0
-            xxx = np.array((255 * row_temp / row_temp.max()), dtype=np.uint8)
-
-            locs = np.where(xxx < 10)[0]
+            # make defect zone more obvious
+            locs = np.where(mask < 10)[0]
             for k, _ in enumerate(locs[:-2]):
-                if locs[k + 1] - locs[k] < 150:
-                    xxx[locs[k] : locs[k + 1]] = 0
+                if locs[k + 1] - locs[k] < 170:
+                    mask[locs[k] : locs[k + 1]] = 0
+            self.mask.optimiezedAdd(mask, colormap=None)
 
-            self.mask.optimiezedAdd(xxx, colormap=None)
+            # update stack_row for calculating new base
+            stack_row[0 : mean_index - 1, :] = stack_row[1:mean_index, :]
+            stack_row[mean_index - 1, :] = row
 
-            row_5[0 : mean_index - 1, :] = row_5[1:mean_index, :]
-            row_5[mean_index - 1, :] = row2
-
-
+        # get final image
         out_mask = self.mask.getImage(int(SHOW_BOUND / self.rate), self.rate)
-        out_mask = np.array(out_mask)
-        # return out_mask
-        # if self.checkBox_th_2.isChecked():
-            # _, out_mask = cv2.threshold(out_mask, self.threshold_2_spin.value(), 255, cv2.THRESH_BINARY_INV)
-        _, dst = cv2.threshold(out_mask, 254, 255, cv2.THRESH_BINARY_INV)
-        # if self.checkBox_median_2.isChecked():
-        #     out_mask = cv2.medianBlur(out_mask, self.median_2_spin.value())
-        # return dst
-        if DEBUG_UI: 
-            cv2.namedWindow("dst", cv2.WINDOW_NORMAL) 
-            cv2.imshow('dst',dst)
+        # out_mask_h = self.mask.get_hImage(int(SHOW_BOUND / self.rate), self.rate)
+        out_mask = cv2.medianBlur(out_mask, final_output_medianBlur_kernel)
+        _, dst = cv2.threshold(
+            out_mask, final_output_threshold_kernel, 255, cv2.THRESH_BINARY_INV
+        )
+        if DEBUG_UI:
+            cv2.namedWindow("dst", cv2.WINDOW_NORMAL)
+            cv2.imshow("dst", dst)
             cv2.waitKey(1)
-        # return dst
-        if self.num_frames % int(SHOW_BOUND / self.rate) == 0:
-            self.process_flag = True
-        else:
-            self.process_flag = False
-        #temp=dst.copy()        
-        if self.process_flag:
-            contours, _ = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-            # dst = cv2.cvtColor(out_mask, cv2.COLOR_GRAY2BGR)
-            color = 255
-
-            # cv2.imshow('a',dst)
-            # cv2.waitKey(0)
-
-            # type_ = f"defect"
-            temp = np.zeros(dst.shape)
-            
-            for k,cnt in enumerate(contours):
-                x, y, w, h = cv2.boundingRect(cnt)
-                area = cv2.contourArea(cnt)
-                perimeter = cv2.arcLength(cnt, True)
-
-                if area > 5000 or perimeter > 1000:
-                    temp = average_moveing_contour(cnt=cnt, k_pre_points=50, mask_raw=temp)
-                    # temp = cv2.dilate(temp, kernel, iterations=1)
-                    
-                    temp = cv2.rectangle(temp, (x, y), (x + w, y + h), color, 3)
-                    area = round(area/(float(self.label_pixel_value.text())), 1)
-                    cv2.putText(
-                        temp,
-                        "Area :{}".format(str(area)),
-                        (x, y + 30),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.9,
-                        255,
-                        2,
-                    )
-                    self.save_defect_images_list.append(temp[y : y + h, x : x + w])
-                    self.save_defect_images_list_name_file.append(
-                            str(self._i_) + "_" + str(k) + ".jpg"
-                        )
-                    print(str(self._i_) + "_" + str(k))
-
-                    default_details = {"date":"{}".format(date_module.get_datetime()),"loc": "{}".format(random.randint(5,500)), "area": "{}".format(area), "type": "-", "p": "-", "depth": "-"}
-                    self.json_list.append(default_details)
-                # self.json_obj.set_all(default_details)
-                # self.json_obj.write(str(path).replace('jpg', 'json'))
-
-        else:
-            contours, _ = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-            color = 255
-            temp = np.zeros(dst.shape)
-            for cnt in contours:
-                x, y, w, h = cv2.boundingRect(cnt)
-                area = cv2.contourArea(cnt)
-                perimeter = cv2.arcLength(cnt, True)
-
-                if area > 5000 or perimeter > 1000:
-                    temp = average_moveing_contour(cnt=cnt, k_pre_points=10, mask_raw=temp)
-                    # temp = cv2.dilate(temp, kernel, iterations=1)
-                    temp = cv2.rectangle(temp, (x, y), (x + w, y + h), color, 3)
-                    cv2.putText(
-                        temp,
-                        "Area :{}".format(str(round(area/(float(self.label_pixel_value.text())), 1))),
-                        (x, y + 30),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.9,
-                        255,
-                        2,
-                    )
-        temp = temp.astype('uint8')
-        return temp
-
-    def indicate_features_and_emergency_of_defect(self, contours, mask):
-
-        for cnt in contours:
-            x, y, w, h = cv2.boundingRect(cnt)
-            # area = cv2.contourArea(cnt)
-            # perimeter = cv2.arcLength(cnt, True)
-            # flag, color, type_ = self.contour_filter(
-            #     w=w, h=h, area=area, perimeter=perimeter
-            # )
-            flag = True
-            type_ = f"defect"
-            color = (255, 0, 0)
-            if flag:
-                mask[x : x + w, y : y + h] = 0
-                mask[x : x + w, y : y + h] = self.average_moveing_contour(
-                    cnt=cnt, k_pre_points=2, mask=mask[x : x + w, y : y + h]
-                )
-                mask = cv2.rectangle(mask, (x, y), (x + w, y + h), color, 3)
-                cv2.putText(
-                    mask,
-                    type_,
-                    (x, y + 30),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.9,
-                    (255, 255, 255),
-                    2,
-                )
-                self.set_image_label(self.LBL_live_camera, mask)
-
-    def contour_filter(self, w, h, area, perimeter):
-        # will be completed
-        color = (255, 0, 0)
-        type_ = f"defect"
-        return True, color, type_
-
-    def average_moveing_contour(self, cnt, k_pre_points, mask):
-
-        for i, _ in enumerate(cnt):
-            if cnt[i : i + k_pre_points, 0, 0].shape[0] == k_pre_points:
-                x_ = cnt[i : i + k_pre_points, 0, 0].mean()
-                y_ = cnt[i : i + k_pre_points, 0, 1].mean()
-            else:
-                x_ = cnt[i, 0, 0]
-                y_ = cnt[i, 0, 1]
-
-            mask[int(y_), int(x_)] = 255
-
-        return mask
+        return dst, z_pivots
 
     def surface_scanning(self):
-        # try:
-        # status, frame = self.camera.getPictures()
-        # frame_org = frame
-        self.num_frames += 1
-        # _____________temp_______________________
-        status = True
-        if self._i_ == len(self.temp_image_folder) - 1:
-            self._i_ = -1
-        self._i_ += 1
-        frame = cv2.imread(os.path.join(self.image_path, self.temp_image_folder[self._i_]))
-        frame_org = frame
-        if DEBUG_UI:
-            cv2.imshow('faaaaaaaaaaaaaaaaaaaaaaaaa',frame)
-            cv2.waitKey(1)
-        # print(frame.shape,os.path.join(self.image_path, self.temp_image_folder[self._i_]))
+        """this function get live frame ,and pass the frame to the algo for processing"""
+        try:
+            if GET_LIVE_PICTURE:
+                # get live picture from camera(truly)
+                status, frame = self.camera.getPictures()
+            else:
+                # get live picture artificially
+                status = True
+                if self.image_index == len(self.temp_image_folder):
+                    self.image_index = 0
 
-        # _____________temp_______________________
+                frame = cv2.imread(
+                    os.path.join(
+                        self.image_path, self.temp_image_folder[self.image_index]
+                    )
+                )
 
-        if status:
+                self.image_index += 1
+
+            if DEBUG_UI:
+                cv2.imshow("faaaaaaaaaaaaaaaaaaaaaaaaa", frame)
+                cv2.waitKey(1)
+
+            self.num_frames += 1
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            frame_org = frame
-            mask = self.mask_gen(frame)
-             
+
+        except:
+            status = False
+            print("in exception loop!!!!!! ,there is problem for getting picture")
+        if status:
+            self.slider_management()
+            mask, z_mask = self.mask_gen(frame)
+            shape = z_mask.shape
+            if shape[0] <= SHOW_BOUND:
+                self.last_point = shape[0]
+            else:
+                self.first_point += self.update_step
+                self.last_point += self.update_step
+            self.current_segment = np.ones((SHOW_BOUND, WIDTH, 3), np.uint8) * 255
+            self.display_segment_schematic(
+                mask, z_mask[self.first_point : self.last_point]
+            )
+            if self.segment_index != ((self.num_frames - 1) // self.frame_pre_segment):
+                self.segment_index = (self.num_frames - 1) // self.frame_pre_segment
+                self.segment_detail_list[self.segment_index] = self.current_segment
+
             if DEBUG_UI:
                 cv2.namedWindow("aaaaaaaaaaaaaa", cv2.WINDOW_NORMAL)
-                cv2.imshow('aaaaaaaaaaaaaa',mask)
+                cv2.imshow("aaaaaaaaaaaaaa", mask)
 
-            resized = cv2.resize(
-                mask,
-                (self.scrollArea.width(), 900),  #this relative to the camera
-                interpolation=cv2.INTER_AREA,
-            )
-            # try:
-            self.set_image_label(self.LBL_live_camera, resized)
-            # self.set_image_label(self.LBL_line_laser_detected_2, frame_org)
-            # except:
-            #     pass
-            # self.set_image_label(self.LBL_area_laser_detected_2, mask)
-            # self.set_image_label(self.LBL_live_camera_for_setting_image_quality, frame_org)
+            if self.num_frames >= self.frame_per_roll:
+                stack_row = np.zeros((mean_index, WIDTH))
+                self.num_frames = 0
+                self.z_heatmap.reset_32bit_part()
+                self.mask.reset()
+                self.last_point = self.update_step
+                self.first_point = 0
+                self.segment_index = 0
 
+                self.create_path = True
+                num_prev = len(self.segment_path) // self.image_pre_row
+                for _ in range(num_prev):
+                    update_imagesslider_on_ui(self, "prev")
+                if len(self.segment_path) % self.image_pre_row != 0:
+                    update_imagesslider_on_ui(self, "prev")
+                self.index_slider = 0
+                self.index_of_scanning_segment = -1
 
-            # cv2.imshow('resized',resized)
-            # cv2.imshow('frame_org',frame_org)
-            # cv2.waitKey(0)
+    def display_segment_schematic(self, mask, z_value):
 
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        for _, cnt in enumerate(contours):
+            (
+                check_flag,
+                area,
+                perimeter,
+                thickness,
+                Type,
+                err_cordinats,
+            ) = self.defects_features_extractor(cnt)
+            if check_flag:
+                x, y, w, h = err_cordinats
+                shape = mask.shape
+                raw_canvas = np.zeros(shape, np.uint8)
+                x1, y1 = average_moveing_contour(
+                    cnt=cnt,
+                )
+                raw_canvas[y1, x1] = 255
+                cv2.line(raw_canvas, (x1[0], y1[0]), (x1[-1], y1[-1]), 255, thickness=1)
+                single_contours, _ = cv2.findContours(
+                    raw_canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+                )
+                cv2.drawContours(raw_canvas, single_contours, -1, 255, -1)
+                locs = np.where(raw_canvas == 255)
+                detph = np.mean(z_value[locs[0], locs[1]], axis=0)
+                if detph < 180:
+                    color = (255, 0, 0)
+                    type_ = "jerrrrrrr"
+                elif detph < 220:
+                    color = (235, 134, 13)
+                    type_ = "paregi"
+                else:
+                    color = (229, 236, 9)
+                    type_ = "farsayesh"
+                position = (x + (w // 2), y + (h // 2))
+                self.current_segment[locs[0], locs[1], 0] = z_value[locs[0], locs[1]]
+                self.current_segment[locs[0], locs[1], 1] = z_value[locs[0], locs[1]]
+                self.current_segment[locs[0], locs[1], 2] = z_value[locs[0], locs[1]]
 
-            # self.indicate_features_and_emergency_of_defect(
-            #     contours=contours, mask=mask
-            # )
-            # ______________mini process____________________________
-            if self.num_frames>=200:
-                self.create_path=True
-                self.create_folder()
-                self.num_frames=0
-    # except:
-    #     pass
+                self.current_segment = cv2.rectangle(
+                    self.current_segment, (x, y), (x + w, y + h), color, 3
+                )
+
+        # self.set_image_label(self.LBL_live_camera, mask)
+        # self.set_image_label(self.LBL_live_camera, z_value)
+        self.set_image_label(self.LBL_live_camera, self.current_segment)
 
     def write_defect_images(self):
         if len(self.save_defect_images_list) > 0:
@@ -888,27 +907,16 @@ class UI_main_window(QMainWindow, ui):
             path = os.path.join(self.path, file_name)
             if WRITE:
                 cv2.imwrite(path, mask)
-                # cv2.imwrite(path, mask)
-                # default_details = {"date":"{}".format(date_module.get_datetime()),"loc": "{}".format(random.randint(5,500)), "area": "{}".format(random.randint(5,500)), "type": "-", "p": "-", "depth": "-"}
                 self.json_obj.set_all(json)
-                self.json_obj.write(str(path).replace('jpg', 'json'))
-            self.defect_image_list.append_mylist(path, self.name)
+                self.json_obj.write(str(path).replace("jpg", "json"))
+                self.defect_image_list.append_mylist(path, self.name)
 
     def UpDate_Slider(self):
         if len(self.save_defect_images_list) > 0:
-            # print("a")
-            # threading.Thread(
-            #     target=update_defect_images_on_ui, args=(self, "next")
-            # ).start()
             update_defect_images_on_ui(ui_obj=self, prevornext="next")
-            # self.defect_image_list_next_func()
             (self.current_image_list) = self.defect_image_list.get_n_current(
                 name="defect", get_annots=False
             )
-            # print(current_image_list)
-            # current_annots_list = []
-            # print("current_image_list", self.current_image_list)
-            # # set/update images on UI
 
     def update_slider_2(self):
         res = set_image_to_ui_slider_full_path(
@@ -919,15 +927,99 @@ class UI_main_window(QMainWindow, ui):
             image_per_row=6,
         )
 
-    # def defects_features_extractor(self,cnt,mask):
-    #     x, y, w, h = cv2.boundingRect(cnt)
-    #     area = cv2.contourArea(cnt)
-    #     perimeter = cv2.arcLength(cnt, True)
-    #     #thickness=
-    #     for i,_ in enumerate(cnt):
-    #         mask[]
-    #         cnt[i,0,0]
-    #         cnt[i,0,1]
+    def draw_err_zone(self, mask):
+        """this function indicate zone and shape of err on conveyor shematic
+
+        Parameters
+        ----------
+        mask : np.ndarray
+            the mask that the detected err on it
+        """
+
+        if self.num_frames % int(SHOW_BOUND / self.rate) == 0:
+            self.process_flag = True
+        else:
+            self.process_flag = False
+
+        color = 255
+        raw_canvas = np.zeros(mask.shape)
+
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        for k, cnt in enumerate(contours):
+            (
+                check_flag,
+                area,
+                perimeter,
+                thickness,
+                Type,
+                err_cordinats,
+            ) = self.defects_features_extractor(cnt)
+            if check_flag:
+                x, y, w, h = err_cordinats
+                x1, y1 = average_moveing_contour(
+                    cnt=cnt,
+                )
+                raw_canvas[y1, x1] = 255
+                cv2.line(raw_canvas, (x1[0], y1[0]), (x1[-1], y1[-1]), 255, thickness=1)
+                raw_canvas = cv2.rectangle(raw_canvas, (x, y), (x + w, y + h), color, 3)
+
+                if self.process_flag:
+                    self.save_defect_images_list.append(
+                        raw_canvas[y : y + h, x : x + w]
+                    )
+                    path = str(self.image_index) + "_" + str(k) + ".jpg"
+                    self.save_defect_images_list_name_file.append(path)
+                    x_c = ((SHOW_BOUND / self.rate) * (self.image_index - 1)) + (
+                        x + (w / 2)
+                    )
+                    y_c = y + (h / 2)
+                    default_details = {
+                        "date": "{}".format(date_module.get_datetime()),
+                        "loc": "({},{})".format(x_c, y_c),
+                        "area": "{}".format(area),
+                        "type": "{}".format(Type),
+                        "perimeter": "{}".format(perimeter),
+                        "depth": "{}".format(thickness),
+                    }
+                    self.json_list.append(default_details)
+
+        return raw_canvas
+
+    def defects_features_extractor(self, cnt):
+        """this function get contour image of detected err,and extract the features of it
+
+        Parameters
+        ----------
+        cnt : np.ndarray
+            numpy array of contour pixel
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
+        x, y, w, h = cv2.boundingRect(cnt)
+        area = cv2.contourArea(cnt)
+        perimeter = cv2.arcLength(cnt, True)
+        thickness = 1
+        Type = "defect"
+
+        if area > 5000 or perimeter > 5000:
+            return True, area, perimeter, thickness, Type, (x, y, w, h)
+        return False, area, perimeter, thickness, Type, (x, y, w, h)
+
+    def slider_management(self):
+
+        last_index = self.index_of_scanning_segment
+        temp = (self.num_frames - 1) // self.frame_pre_segment
+        self.index_of_scanning_segment = temp % self.image_pre_row
+        if self.index_slider != (temp // self.image_pre_row):
+            update_imagesslider_on_ui(self, "next")
+        if last_index != self.index_of_scanning_segment:
+            for j in range(self.image_pre_row):
+                set_label_style(self, j, "segment", "normal")
+            set_label_style(self, self.index_of_scanning_segment, "segment", "scanning")
+        self.index_slider = temp // self.image_pre_row
 
     def stop_live(self):
         if self.live_flag:
@@ -942,7 +1034,6 @@ class UI_main_window(QMainWindow, ui):
             print("start live")
 
     def stop_detect(self):
-        print(self.detect_flag)
         if self.detect_flag:
             self.timer_live_detect.stop()
             self.timer_save_defect_images.stop()
@@ -959,7 +1050,7 @@ class UI_main_window(QMainWindow, ui):
 
     def start_detect(self):
         if not self.detect_flag:
-            self.create_folder()
+            # self.create_folder()
             self.timer_live_detect.start()
             if WRITE:
                 self.timer_save_defect_images.start(500)
@@ -972,7 +1063,6 @@ class UI_main_window(QMainWindow, ui):
                     text="Start Detection",
                     level=1,
                 )
-            
 
     def widget_connector(self):
         self.BTN_camera_setting.clicked.connect(self.load_page)
@@ -1009,9 +1099,17 @@ class UI_main_window(QMainWindow, ui):
         ls = self.spinBox_l_s.value()
         pv = self.spinBox_pixel_value.value()
         fpv = self.label_pixel_value.text()
-        
 
-        parms = {"laser": laser, "mean": mean, "th1": th1, "th2": th2,'frame_rate':fr,'line_speed':ls,'pixel_value':pv,'final_pixel_value':fpv}
+        parms = {
+            "laser": laser,
+            "mean": mean,
+            "th1": th1,
+            "th2": th2,
+            "frame_rate": fr,
+            "line_speed": ls,
+            "pixel_value": pv,
+            "final_pixel_value": fpv,
+        }
         self.db.update_camera_parms(table_name="calibration", id_number=0, parms=parms)
 
     def load_camera_calibration(self):
@@ -1028,7 +1126,7 @@ class UI_main_window(QMainWindow, ui):
         self.label_pixel_value.setText(str(parms["final_pixel_value"]))
 
     def open_close_camera(self):
-        print("starttttttttt", self.camera)
+        """this function used for connecting sofware to camera"""
 
         if self.camera == None:
             self.camera = 1
@@ -1039,6 +1137,7 @@ class UI_main_window(QMainWindow, ui):
                     self.set_btn_image(self.camera_calib_btn, image_open_camera)
                     self.set_btn_image(self.camera_live_btn, image_open_camera)
                     self.enable_disable_camera_btns(True)
+                    self.set_image_label(self.LBL_live_camera_2, self.current_segment)
                 else:
                     self.set_warning(
                         label_name=self.msg_label,
@@ -1074,8 +1173,6 @@ class UI_main_window(QMainWindow, ui):
                 level=2,
             )
 
-        print("enddddddddddddddd", self.camera)
-
     def enable_disable_camera_btns(self, mode):
 
         btns = [
@@ -1106,12 +1203,9 @@ class UI_main_window(QMainWindow, ui):
         elif btnName == "BTN_history":
             self.stackedWidget.setCurrentWidget(self.history)
 
-
-
     def load_history(self):
 
         self.create_folders()
-
 
     def create_folders(self):
         self.clearLayout(self.verticalLayout_20)
@@ -1122,27 +1216,26 @@ class UI_main_window(QMainWindow, ui):
                 self.folders.append(it)
         # print(folders)
         # name=['1','2','3','4','1','2','3','4','1','2','3','4','1','2','3','4']
-        for _,button_number in enumerate(self.folders):
+        for _, button_number in enumerate(self.folders):
             button = QPushButton()
             bt = str(button_number).split("'")[1]
             button.setText(bt)
-            button.setObjectName('%d' % _)
+            button.setObjectName("%d" % _)
             button.clicked.connect(self.click)
             button.setFont(QFont("Sanserif", 15))
             # button.setIcon(QIcon("G:\work/abrarvan\images/folder-icon.png"))
-            button.setIconSize(QSize(10,10))
+            button.setIconSize(QSize(10, 10))
             button.setCursor(Qt.PointingHandCursor)
-            button.setStyleSheet("QPushButton { background-color: rgb(0, 0, 0);color : rgb(255,255,255)}")
+            button.setStyleSheet(
+                "QPushButton { background-color: rgb(0, 0, 0);color : rgb(255,255,255)}"
+            )
             self.verticalLayout_20.addWidget(button)
 
-
-    def clearLayout(self,layout):
+    def clearLayout(self, layout):
         while layout.count():
             child = layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
-
-
 
     def click(self):
         self.clearLayout(self.gridLayout)
@@ -1151,40 +1244,38 @@ class UI_main_window(QMainWindow, ui):
         print(btnName)
 
         path_ = os.path.join(self.folders[int(btnName)])
-        print('path_  sssssssssss',path_)
+        print("path_  sssssssssss", path_)
         self.lineEdit_load_path.setText(path_)
         path = os.listdir(path_)
-        self.img_path=[]
+        self.img_path = []
         for it in path:
-            if it[-3:]=='jpg':
+            if it[-3:] == "jpg":
                 # print(it)
                 self.img_path.append(it)
         print(self.img_path)
-        for _,i in enumerate(self.img_path):
+        for _, i in enumerate(self.img_path):
 
             label = QLabel()
-            label.setObjectName('label_{}_{}'.format(path_,i))
+            label.setObjectName("label_{}_{}".format(path_, i))
             # label.mousePressEvent = self.show_image()
             # label.clicked.connect(self.show_image)
             label.setFont(QFont("Sanserif", 15))
-            img_path = (os.path.join(path_,i))
+            img_path = os.path.join(path_, i)
             # self.set_btn_image(label, img_path)
             # label.setIconSize(QSize(200,200))
             self.set_image_label(label, cv2.imread(img_path))
             label.setCursor(Qt.PointingHandCursor)
-            self.gridLayout.addWidget(label)  
+            self.gridLayout.addWidget(label)
 
-    def show_image(self,e):
+    def show_image(self, e):
 
         # self.clearLayout(self.gridLayout)
         btn = self.sender()
         btnName = btn.objectName()
         print(btnName)
 
-
     def set_btn_image(self, btn_name, path):
         btn_name.setIcon(QIcon(path))
-
 
 
 if __name__ == "__main__":

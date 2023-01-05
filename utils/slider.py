@@ -5,8 +5,10 @@ from PySide6.QtGui import QImage as sQImage
 from PySide6.QtGui import QPixmap as sQPixmap
 from functools import partial
 import json
+import numpy as np
 
 n_images_per_row = 6
+no_image_path = "UI/images_icon/no_image.png"  # path for a raw image (using for labels default image)
 
 
 def create_image_slider_on_ui(
@@ -15,6 +17,7 @@ def create_image_slider_on_ui(
     frame_obj,
     prefix="defect",
     image_per_row=n_images_per_row,
+    # segments=None,
 ):
     """this function is used to create dataset image slider on ui binary list page, this slider is used to show dataset images
 
@@ -32,7 +35,6 @@ def create_image_slider_on_ui(
     :rtype: boolean
     """
 
-    # try:
     # create layout
     layout = sQHBoxLayout()
     eval("exec('ui_obj.%s_layout = layout')" % prefix)
@@ -48,14 +50,13 @@ def create_image_slider_on_ui(
         eval("ui_obj.%s_layout" % prefix).addWidget(
             eval("ui_obj.%s_label_%s" % (prefix, i))
         )
-        # assign image
         set_image_to_ui(
             label_name=eval("ui_obj.%s_label_%s" % (prefix, i)),
             image=None,
             no_image=True,
         )
 
-        # # doble-click event for labels
+        # doble-click event for labels
         eval("ui_obj.%s_label_%s" % (prefix, i)).mouseDoubleClickEvent = partial(
             maximize_image_on_click,
             ui_obj,
@@ -66,25 +67,10 @@ def create_image_slider_on_ui(
     # assign layout to frame
     frame_obj.setLayout(eval("ui_obj.%s_layout" % prefix))
 
-    # ui_obj.logger.create_new_log(
-    #     message=texts.MESSEGES["BINARYLIST_SLIDER_build"]["en"], level=1
-    # )
     return True
 
-    # except Exception as e:
-    #     ui_obj.set_warning(
-    #         texts.ERRORS["BUILD_BINARYLIST_SLIDER_ERROR"]["en"], "binarylist", level=3
-    #     )
-    #     ui_obj.logger.create_new_log(
-    #         message=texts.ERRORS["BUILD_BINARYLIST_SLIDER_ERROR"]["en"], level=5
-    #     )
-    #     return False
 
-
-no_image_path = "UI/images_icon/no_image.png"  # path for a raw image (using for labels default image)
-
-
-def set_image_to_ui(label_name, image, no_image=False):
+def set_image_to_ui(label_name, image, no_image=False, mode=None):
     """this function is used to set an image on ui label using label name
 
     :param label_name: name if the label
@@ -106,6 +92,67 @@ def set_image_to_ui(label_name, image, no_image=False):
         image.data, w, h, bytes_per_line, sQImage.Format_BGR888
     )
     label_name.setPixmap(sQPixmap.fromImage(convert_to_Qt_format))
+    label_name.setStyleSheet(
+        "border-style: solid;"
+        "border-width: 2px;"
+        "border-color: gray;"
+        "border-radius: 3px"
+    )
+
+
+def set_label_style(ui_obj, index, prefix, mode="normal"):
+
+    if mode == "scanning":
+        eval("ui_obj.%s_label_%s" % (prefix, index)).setStyleSheet(
+            "border-style: solid;"
+            "border-width: 2px;"
+            "border-color: black;"
+            "border-radius: 3px"
+        )
+    elif mode == "defective":
+        eval("ui_obj.%s_label_%s" % (prefix, index)).setStyleSheet(
+            "border-style: solid;"
+            "border-width: 2px;"
+            "border-color: red;"
+            "border-radius: 3px"
+        )
+    else:
+        eval("ui_obj.%s_label_%s" % (prefix, index)).setStyleSheet(
+            "border-style: solid;"
+            "border-width: 2px;"
+            "border-color: gray;"
+            "border-radius: 3px"
+        )
+
+
+def update_imagesslider_on_ui(ui_obj, prevornext="False"):
+    """this function is used to update classification images list on UI slider
+
+    :param prevornext: boolean determining whether to get next/prev page, defaults to 'False'
+    :type prevornext: str, optional
+    """
+
+    # next or prev on list
+    if prevornext == "next":
+        ui_obj.segment_image_list_next_func()
+
+    elif prevornext == "prev":
+        ui_obj.segment_image_list_prev_func()
+
+    # get curent image list to set to UI
+    (current_image_list) = ui_obj.segment_image_list.get_n_current(
+        name="segment", get_annots=False
+    )
+    # print("current_image_list", current_image_list)
+    current_annots_list = []
+    # # set/update images on UI
+    res = set_image_to_ui_slider_full_path(
+        ui_obj=ui_obj,
+        image_path_list=current_image_list,
+        annot_path_list=current_annots_list,
+        prefix="segment",
+        image_per_row=n_images_per_row,
+    )
 
 
 # update slider images
@@ -162,17 +209,18 @@ def set_image_to_ui_slider_full_path(
     :return: _description_
     :rtype: boolean determiing if done
     """
-    
-    # try:
+
     # set dataset images on UI
+    temp_i = 0
     for i, image_path in enumerate(image_path_list):
         # load image
-        if image_path[-3:]=='jpg':
+        if image_path[-3:] == "jpg":
             image = cv2.imread(image_path)
 
-            # if image
-
             # set to UI label
+            if eval("ui_obj.%s_label_%s" % (prefix, i)).isVisible() == False:
+                eval("ui_obj.%s_label_%s" % (prefix, i)).setVisible(True)
+
             set_image_to_ui(
                 label_name=eval("ui_obj.%s_label_%s" % (prefix, i)),
                 image=image,
@@ -185,29 +233,18 @@ def set_image_to_ui_slider_full_path(
                 eval("ui_obj.%s_label_%s" % (prefix, i)).setWhatsThis(whats_this_text)
             except:
                 pass
-    # set last image labels on UI as empty
-            try:
-                i += 1
-            except:
-                i = 0
-    # for j in range(i, image_per_row):
-    #     set_image_to_ui(
-    #         label_name=eval("ui_obj.%s_label_%s" % (prefix, j)),
-    #         image=None,
-    #         no_image=True,
-    #     )
-    #     whats_this_text = image_path
-    #     try:
-    #         eval("ui_obj.%s_label_%s" % (prefix, j)).setWhatsThis(whats_this_text)
-    #     except:
-            # pass
-    return True
+            # set last image labels on UI as empty
+            temp_i = i
 
-    # except Exception as e:
-    #     ui_obj.logger.create_new_log(
-    #         message=texts.ERRORS["set_image_to_slider_failed"][ui_obj.language], level=5
-    #     )
-    #     return False
+    for j in range(temp_i + 1, image_per_row):
+        eval("ui_obj.%s_label_%s" % (prefix, j)).setVisible(False)
+        # set_image_to_ui(
+        #     label_name=eval("ui_obj.%s_label_%s" % (prefix, j)),
+        #     image=None,
+        #     no_image=True,
+        # )
+
+    return True
 
 
 # maximize image label on click (open image in a window)
@@ -223,28 +260,11 @@ def maximize_image_on_click(ui_obj, db_obj, label, event):
     :param event: _description_
     :type event: _type_
     """
-    try:
-        path = label.whatsThis()  # image path is set on its label whatsthis
-    except:
-        path =''
-    # try:
-    # path exists
-    # urrent_image_list aaaa['defect_split\\9_53.jpg', 'defect_split\\9_61.jpg']
-    json_details = {}
-    # try:
-    json_path = str(path).replace("jpg", "json")
-    with open(json_path) as jfile:
-        json_details = json.load(jfile)
-    # except:
-    #     pass
-    # # some JSON:
-    # x =  '{ "name":"John", "age":30, "city":"New York"}'
 
-    # # parse x:
-    # y = json.loads(x)
-
-    # # the result is a Python dictionary:
-    ui_obj.popup_window_obj.update_image_details(
-        image=cv2.imread(path), details=json_details
+    # try:
+    ui_obj.popup_window_obj.set_and_update_schematic(
+        ui_obj.segment_detail_list[ui_obj.segment_index], ui_obj.segment_index, 5
     )
     ui_obj.popup_window_obj.show()
+    # except:
+    #     pass

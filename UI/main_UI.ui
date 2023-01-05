@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
-    <height>629</height>
+    <width>945</width>
+    <height>677</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -113,7 +113,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>images_icon/menu.png</normaloff>images_icon/menu.png</iconset>
+           <normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/menu.png</normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/menu.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -707,7 +707,7 @@ QPushButton:pressed {
              <string notr="true">background-color: #8BBCCC;</string>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="general_setting">
              <layout class="QVBoxLayout" name="verticalLayout_35">
@@ -922,7 +922,7 @@ QPushButton:pressed {
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>images_icon/camera_disconnected.png</normaloff>images_icon/camera_disconnected.png</iconset>
+                     <normaloff>icons/camera_disconnected.png</normaloff>icons/camera_disconnected.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -970,7 +970,7 @@ QPushButton:pressed {
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>icons/scan.png</normaloff>icons/scan.png</iconset>
+                     <normaloff>images_icon/qr-code-scan.png</normaloff>images_icon/qr-code-scan.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -1073,46 +1073,42 @@ QPushButton:pressed {
                   <number>21</number>
                  </property>
                  <item>
-                  <widget class="QScrollArea" name="scrollArea">
-                   <property name="horizontalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAsNeeded</enum>
-                   </property>
-                   <property name="widgetResizable">
-                    <bool>true</bool>
-                   </property>
-                   <widget class="QWidget" name="scrollAreaWidgetContents_2">
-                    <property name="geometry">
-                     <rect>
-                      <x>0</x>
-                      <y>0</y>
-                      <width>763</width>
-                      <height>227</height>
-                     </rect>
-                    </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_10">
-                     <item>
-                      <widget class="QLabel" name="LBL_live_camera">
-                       <property name="frameShape">
-                        <enum>QFrame::Box</enum>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="scaledContents">
-                        <bool>false</bool>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QFrame" name="frame_79">
+                  <widget class="QFrame" name="frame_21">
                    <property name="minimumSize">
                     <size>
                      <width>0</width>
-                     <height>200</height>
+                     <height>300</height>
+                    </size>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_27">
+                    <item>
+                     <widget class="QLabel" name="LBL_live_camera">
+                      <property name="frameShape">
+                       <enum>QFrame::Box</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="scaledContents">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QFrame" name="frame_80">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>80</height>
                     </size>
                    </property>
                    <property name="frameShape">
@@ -1121,7 +1117,7 @@ QPushButton:pressed {
                    <property name="frameShadow">
                     <enum>QFrame::Raised</enum>
                    </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_26">
+                   <layout class="QHBoxLayout" name="horizontalLayout_28">
                     <property name="spacing">
                      <number>10</number>
                     </property>
@@ -1138,7 +1134,7 @@ QPushButton:pressed {
                      <number>10</number>
                     </property>
                     <item>
-                     <widget class="QPushButton" name="defects_prev_btn">
+                     <widget class="QPushButton" name="defects_prev_btn_3">
                       <property name="enabled">
                        <bool>true</bool>
                       </property>
@@ -1177,7 +1173,7 @@ border:Transparent</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLabel" name="defects_list_slider_frame">
+                     <widget class="QLabel" name="segment_list_slider_frame">
                       <property name="frameShape">
                        <enum>QFrame::Panel</enum>
                       </property>
@@ -1190,7 +1186,7 @@ border:Transparent</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="defects_next_btn">
+                     <widget class="QPushButton" name="defects_next_btn_3">
                       <property name="enabled">
                        <bool>true</bool>
                       </property>
@@ -1790,7 +1786,7 @@ QPushButton:pressed {
                                </property>
                                <property name="icon">
                                 <iconset>
-                                 <normaloff>../icons/refresh(1).png</normaloff>../icons/refresh(1).png</iconset>
+                                 <normaloff>C:/Users/Dorsa-Admin/.designer/icons/refresh(1).png</normaloff>C:/Users/Dorsa-Admin/.designer/icons/refresh(1).png</iconset>
                                </property>
                               </widget>
                              </item>
@@ -3810,7 +3806,7 @@ QPushButton:pressed {
                          <rect>
                           <x>0</x>
                           <y>0</y>
-                          <width>302</width>
+                          <width>241</width>
                           <height>158</height>
                          </rect>
                         </property>
@@ -4368,7 +4364,7 @@ QPushButton:pressed {
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>images_icon/camera_disconnected.png</normaloff>images_icon/camera_disconnected.png</iconset>
+                        <normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/camera_disconnected.png</normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/camera_disconnected.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -4429,7 +4425,7 @@ QPushButton:pressed {
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>images_icon/play-button.png</normaloff>images_icon/play-button.png</iconset>
+                        <normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/play-button.png</normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/play-button.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -4490,7 +4486,7 @@ QPushButton:pressed {
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>images_icon/stop-button.png</normaloff>images_icon/stop-button.png</iconset>
+                        <normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/stop-button.png</normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/stop-button.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -5050,7 +5046,7 @@ QPushButton:pressed {
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>images_icon/refresh(1).png</normaloff>images_icon/refresh(1).png</iconset>
+                     <normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/refresh(1).png</normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/refresh(1).png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -5064,8 +5060,8 @@ QPushButton:pressed {
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>278</width>
-                      <height>411</height>
+                      <width>98</width>
+                      <height>28</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -5132,8 +5128,8 @@ QPushButton:pressed {
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>498</width>
-                      <height>366</height>
+                      <width>98</width>
+                      <height>28</height>
                      </rect>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_2">

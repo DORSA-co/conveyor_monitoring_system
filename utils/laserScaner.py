@@ -12,15 +12,105 @@ class ProfileMeter:
         self.xyz = []
         self.angle = 45
 
-    def laser_detetctor(self, img, thresh=60):
+    def laser_detetctor(self, img, thresh=1, medianBlur_kernel=None):
+        """this function used to get indicate laserline of image
+
+        Parameters
+        ----------
+        img : np.ndarray
+            the gray image of laser
+        thresh : int, optional
+            threshold that indicate laser zone in frame, by default 1
+        medianBlur_kernel :none,int, optional
+            kernel of medianBlur for denoising image,that should be odd number,
+            if it is nono medianBlur will not applied to the image,by default None
+
+        Returns
+        -------
+        np.ndarray
+            the output image
+        """
         _, laser_mask = cv2.threshold(img, thresh, 255, cv2.THRESH_BINARY)
-        # laser_mask = cv2.erode( laser_mask, (25,25), iterations=10 )
+        if medianBlur_kernel != None:
+            laser_mask = cv2.medianBlur(laser_mask, medianBlur_kernel)
+
         return laser_mask
+
+    # _________________JJ PART______________
+    def horizontal_vertical_crop(self, mask, h_up, h_down, v_left, v_right):
+
+        mask[h_up, :] = 255
+        mask[h_down, :] = 255
+        mask[:, v_left] = 255
+        mask[:, v_right] = 255
+
+        return mask
+
+    def extract_area_points_mean(self, mask):
+        ys, xs = np.nonzero(mask)
+        ys_count_per_xs = np.bincount(xs, np.ones(ys.shape, dtype=np.int16))
+        # unique_ys = np.unique(ys)
+
+        l = []
+        for i in range(3400):
+            temp = np.where(xs == i)
+            l.append(len(ys[temp]))
+            # print(ys[temp])
+        print(max(l))
+        print(min(l))
+        print(sum(l) / len(l))
+        # ys_sum_per_xs = np.bincount(xs, ys)
+        # print(len(xs))
+        # print(xs)
+        # print(xs.min(), xs.max())
+        # print(ys)
+        # print(ys.min(), ys.max())
+        # # print(unique_ys)
+        # # print(len(unique_ys))
+        # print("kk" * 44)
+        # print(ys_count_per_xs)
+        # print(ys_count_per_xs.max())
+        # print(len(ys_count_per_xs))
+
+        # area = np.zeros((int(ys_count_per_xs.max()), len(ys_count_per_xs)))
+        area = np.zeros((int(ys.max() - ys.min()), len(ys_count_per_xs)))
+        area = mask[int(ys.min()) : int(ys.max()), :]
+        return area
+        # print(ys.max() - ys.min())
+        # print(ys_count_per_xs.max())
+        # print("sdjsjdfjsdfjsdjfsjdpfjsdjfpsdjfpjspdfjpsod")
+
+    def save_points_in_area_format(self, area):
+        pass
+        # temp_xyz = np.zeros((len(pts), 3), dtype=np.int32)
+        # temp_xyz[:, 0] = pts[:, 0]
+        # temp_xyz[:, 2] = pts[:, 1]
+        # temp_xyz[:, 1] = self.z
+        # self.z += self.step
+        # self.cloud_points.append(temp_xyz)
+        # self.cloud_points_current = temp_xyz
+
+    def get_area_format_cloudPoints_current(self):
+
+        self.xyz_current = self.cloud_points_current
+        self.xyz_current[:, 2] = self.xyz_current[:, 2] / np.cos(np.deg2rad(self.angle))
+        # normals = np.zeros_like( self.xyz_current )
+        # normals[:,2]=-1
+        # pcd = o3d.geometry.PointCloud()
+        # pcd.points = o3d.utility.Vector3dVector(self.xyz_current)
+        # pcd.normals = o3d.utility.Vector3dVector( normals )
+
+        # np.save('xyzs/xyz_current_%s.npy' % itr, self.xyz_current)
+
+        return self.xyz_current
+
+    # _________________JJ PART______________
 
     def extract_points_mean(self, mask):
         ys, xs = np.nonzero(mask)
+
         ys_sum_per_xs = np.bincount(xs, ys)
-        ys_count_per_xs = np.bincount(xs, np.ones(ys.shape, dtype=np.int16))
+        ys_count_per_xs = np.bincount(xs, np.ones(ys.shape, dtype=np.int32))
         exist_points = ys_count_per_xs > 0
         # exist_points[exist_points==False] = True
 

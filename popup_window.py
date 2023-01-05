@@ -29,7 +29,14 @@ from functools import partial
 ui, _ = loadUiType("UI/popup_window.ui")
 os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100%
 NO_IMAGE = cv2.imread(r"UI\images_icon\no_image.png")
-default_details = {"date":'-',"loc": "-", "area": "-", "type": "-", "p": "-", "depth": "-"}
+default_details = {
+    "date": "-",
+    "loc": "-",
+    "area": "-",
+    "type": "-",
+    "p": "-",
+    "depth": "-",
+}
 DEBUG_UI = False
 
 
@@ -38,7 +45,7 @@ class UI_popup_window(QMainWindow, ui):
     widgets = ui
     x = 0
     _i_ = -1
-    temp_image_folder = os.listdir(r"IMAGE")
+    temp_image_folder = os.listdir(r"images\Newfolder3")
 
     def __init__(self):
         """
@@ -123,12 +130,12 @@ class UI_popup_window(QMainWindow, ui):
         h, w, ch = img.shape
         bytes_per_line = ch * w
         convert_to_Qt_format = sQImage(
-            img.data, w, h, bytes_per_line, sQImage.Format_BGR888
+            img.data, w, h, bytes_per_line, sQImage.Format_RGB888
         )
         label_name.setPixmap(sQPixmap.fromImage(convert_to_Qt_format))
 
     def update_image_details(self, image=NO_IMAGE, details=default_details):
-        print(details)
+
         try:
             self.update_details(details=details)
         except:
@@ -139,12 +146,18 @@ class UI_popup_window(QMainWindow, ui):
             self.set_image_label(self.label_image, NO_IMAGE)
 
     def update_details(self, details):
-        self.label_loc.setText(details["loc"])
-        self.label_area.setText(details["area"])
-        self.label_type.setText(details["type"])
-        self.label_p.setText(details["p"])
-        self.label_depth.setText(details["depth"])
-        self.label_date.setText(details["date"])
+        pass
+        # self.label_loc.setText(details["loc"])
+        # self.label_area.setText(details["area"])
+        # self.label_type.setText(details["type"])
+        # self.label_p.setText(details["p"])
+        # self.label_depth.setText(details["depth"])
+        # self.label_date.setText(details["date"])
+
+    def set_and_update_schematic(self, mask, id, postion):
+        self.set_image_label(self.label_image, mask)
+        self.LBL_segment_ID_value.setText(str(id))
+        self.LBL_segment_position_value.setText(str(postion))
 
 
 if __name__ == "__main__":

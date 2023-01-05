@@ -16,14 +16,14 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-    QMainWindow, QPushButton, QSizePolicy, QSpacerItem,
-    QVBoxLayout, QWidget)
+    QMainWindow, QPushButton, QScrollArea, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(772, 494)
+        MainWindow.resize(1296, 725)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setStyleSheet(u"QPushButton{\n"
@@ -140,19 +140,88 @@ class Ui_MainWindow(object):
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setFrameShape(QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout = QHBoxLayout(self.frame_2)
+        self.verticalLayout_4 = QVBoxLayout(self.frame_2)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(9, 0, 9, 6)
+        self.frame_4 = QFrame(self.frame_2)
+        self.frame_4.setObjectName(u"frame_4")
+        self.frame_4.setMinimumSize(QSize(200, 0))
+        self.frame_4.setMaximumSize(QSize(16777215, 16777215))
+        self.frame_4.setFrameShape(QFrame.Box)
+        self.frame_4.setFrameShadow(QFrame.Plain)
+        self.frame_4.setLineWidth(2)
+        self.horizontalLayout = QHBoxLayout(self.frame_4)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(9, 0, 9, 6)
-        self.frame_3 = QFrame(self.frame_2)
-        self.frame_3.setObjectName(u"frame_3")
-        self.frame_3.setMinimumSize(QSize(1, 1))
-        self.frame_3.setFrameShape(QFrame.StyledPanel)
-        self.frame_3.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_2 = QVBoxLayout(self.frame_3)
-        self.verticalLayout_2.setSpacing(0)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.label_image = QLabel(self.frame_3)
+        self.frame_7 = QFrame(self.frame_4)
+        self.frame_7.setObjectName(u"frame_7")
+        self.frame_7.setMinimumSize(QSize(200, 0))
+        self.frame_7.setFrameShape(QFrame.StyledPanel)
+        self.frame_7.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_5 = QHBoxLayout(self.frame_7)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.LBL_segment_ID = QLabel(self.frame_7)
+        self.LBL_segment_ID.setObjectName(u"LBL_segment_ID")
+
+        self.horizontalLayout_5.addWidget(self.LBL_segment_ID)
+
+        self.LBL_segment_ID_value = QLabel(self.frame_7)
+        self.LBL_segment_ID_value.setObjectName(u"LBL_segment_ID_value")
+
+        self.horizontalLayout_5.addWidget(self.LBL_segment_ID_value)
+
+
+        self.horizontalLayout.addWidget(self.frame_7)
+
+        self.line_2 = QFrame(self.frame_4)
+        self.line_2.setObjectName(u"line_2")
+        self.line_2.setFrameShape(QFrame.VLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout.addWidget(self.line_2)
+
+        self.frame_6 = QFrame(self.frame_4)
+        self.frame_6.setObjectName(u"frame_6")
+        self.frame_6.setMinimumSize(QSize(400, 0))
+        self.frame_6.setFrameShape(QFrame.StyledPanel)
+        self.frame_6.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_2 = QHBoxLayout(self.frame_6)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.LBL_segment_position = QLabel(self.frame_6)
+        self.LBL_segment_position.setObjectName(u"LBL_segment_position")
+
+        self.horizontalLayout_2.addWidget(self.LBL_segment_position)
+
+        self.LBL_segment_position_value = QLabel(self.frame_6)
+        self.LBL_segment_position_value.setObjectName(u"LBL_segment_position_value")
+
+        self.horizontalLayout_2.addWidget(self.LBL_segment_position_value)
+
+
+        self.horizontalLayout.addWidget(self.frame_6)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_2)
+
+
+        self.verticalLayout_4.addWidget(self.frame_4)
+
+        self.line = QFrame(self.frame_2)
+        self.line.setObjectName(u"line")
+        self.line.setFrameShape(QFrame.VLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+
+        self.verticalLayout_4.addWidget(self.line)
+
+        self.scrollArea = QScrollArea(self.frame_2)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1274, 584))
+        self.horizontalLayout_6 = QHBoxLayout(self.scrollAreaWidgetContents)
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.label_image = QLabel(self.scrollAreaWidgetContents)
         self.label_image.setObjectName(u"label_image")
         self.label_image.setFrameShape(QFrame.Box)
         self.label_image.setLineWidth(2)
@@ -162,182 +231,23 @@ class Ui_MainWindow(object):
         self.label_image.setMargin(2)
         self.label_image.setIndent(-1)
 
-        self.verticalLayout_2.addWidget(self.label_image)
+        self.horizontalLayout_6.addWidget(self.label_image)
 
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
-        self.horizontalLayout.addWidget(self.frame_3)
+        self.verticalLayout_4.addWidget(self.scrollArea)
 
-        self.line = QFrame(self.frame_2)
-        self.line.setObjectName(u"line")
-        self.line.setFrameShape(QFrame.VLine)
-        self.line.setFrameShadow(QFrame.Sunken)
+        self.frame_3 = QFrame(self.frame_2)
+        self.frame_3.setObjectName(u"frame_3")
+        self.frame_3.setMinimumSize(QSize(1, 1))
+        self.frame_3.setFrameShape(QFrame.StyledPanel)
+        self.frame_3.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_2 = QVBoxLayout(self.frame_3)
+        self.verticalLayout_2.setSpacing(0)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
 
-        self.horizontalLayout.addWidget(self.line)
-
-        self.frame_4 = QFrame(self.frame_2)
-        self.frame_4.setObjectName(u"frame_4")
-        self.frame_4.setMinimumSize(QSize(200, 0))
-        self.frame_4.setMaximumSize(QSize(300, 16777215))
-        self.frame_4.setFrameShape(QFrame.Box)
-        self.frame_4.setFrameShadow(QFrame.Plain)
-        self.frame_4.setLineWidth(2)
-        self.verticalLayout_3 = QVBoxLayout(self.frame_4)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.frame_6 = QFrame(self.frame_4)
-        self.frame_6.setObjectName(u"frame_6")
-        self.frame_6.setFrameShape(QFrame.StyledPanel)
-        self.frame_6.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_2 = QHBoxLayout(self.frame_6)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.label_4 = QLabel(self.frame_6)
-        self.label_4.setObjectName(u"label_4")
-
-        self.horizontalLayout_2.addWidget(self.label_4)
-
-        self.label_loc = QLabel(self.frame_6)
-        self.label_loc.setObjectName(u"label_loc")
-
-        self.horizontalLayout_2.addWidget(self.label_loc)
-
-
-        self.verticalLayout_3.addWidget(self.frame_6)
-
-        self.line_2 = QFrame(self.frame_4)
-        self.line_2.setObjectName(u"line_2")
-        self.line_2.setFrameShape(QFrame.HLine)
-        self.line_2.setFrameShadow(QFrame.Sunken)
-
-        self.verticalLayout_3.addWidget(self.line_2)
-
-        self.frame_7 = QFrame(self.frame_4)
-        self.frame_7.setObjectName(u"frame_7")
-        self.frame_7.setFrameShape(QFrame.StyledPanel)
-        self.frame_7.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_5 = QHBoxLayout(self.frame_7)
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.label_5 = QLabel(self.frame_7)
-        self.label_5.setObjectName(u"label_5")
-
-        self.horizontalLayout_5.addWidget(self.label_5)
-
-        self.label_area = QLabel(self.frame_7)
-        self.label_area.setObjectName(u"label_area")
-
-        self.horizontalLayout_5.addWidget(self.label_area)
-
-
-        self.verticalLayout_3.addWidget(self.frame_7)
-
-        self.line_3 = QFrame(self.frame_4)
-        self.line_3.setObjectName(u"line_3")
-        self.line_3.setFrameShape(QFrame.HLine)
-        self.line_3.setFrameShadow(QFrame.Sunken)
-
-        self.verticalLayout_3.addWidget(self.line_3)
-
-        self.frame_8 = QFrame(self.frame_4)
-        self.frame_8.setObjectName(u"frame_8")
-        self.frame_8.setFrameShape(QFrame.StyledPanel)
-        self.frame_8.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_6 = QHBoxLayout(self.frame_8)
-        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.label_8 = QLabel(self.frame_8)
-        self.label_8.setObjectName(u"label_8")
-
-        self.horizontalLayout_6.addWidget(self.label_8)
-
-        self.label_type = QLabel(self.frame_8)
-        self.label_type.setObjectName(u"label_type")
-
-        self.horizontalLayout_6.addWidget(self.label_type)
-
-
-        self.verticalLayout_3.addWidget(self.frame_8)
-
-        self.line_4 = QFrame(self.frame_4)
-        self.line_4.setObjectName(u"line_4")
-        self.line_4.setFrameShape(QFrame.HLine)
-        self.line_4.setFrameShadow(QFrame.Sunken)
-
-        self.verticalLayout_3.addWidget(self.line_4)
-
-        self.frame_9 = QFrame(self.frame_4)
-        self.frame_9.setObjectName(u"frame_9")
-        self.frame_9.setFrameShape(QFrame.StyledPanel)
-        self.frame_9.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_7 = QHBoxLayout(self.frame_9)
-        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.label_6 = QLabel(self.frame_9)
-        self.label_6.setObjectName(u"label_6")
-
-        self.horizontalLayout_7.addWidget(self.label_6)
-
-        self.label_p = QLabel(self.frame_9)
-        self.label_p.setObjectName(u"label_p")
-
-        self.horizontalLayout_7.addWidget(self.label_p)
-
-
-        self.verticalLayout_3.addWidget(self.frame_9)
-
-        self.line_5 = QFrame(self.frame_4)
-        self.line_5.setObjectName(u"line_5")
-        self.line_5.setFrameShape(QFrame.HLine)
-        self.line_5.setFrameShadow(QFrame.Sunken)
-
-        self.verticalLayout_3.addWidget(self.line_5)
-
-        self.frame_10 = QFrame(self.frame_4)
-        self.frame_10.setObjectName(u"frame_10")
-        self.frame_10.setFrameShape(QFrame.StyledPanel)
-        self.frame_10.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_8 = QHBoxLayout(self.frame_10)
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.label_7 = QLabel(self.frame_10)
-        self.label_7.setObjectName(u"label_7")
-
-        self.horizontalLayout_8.addWidget(self.label_7)
-
-        self.label_depth = QLabel(self.frame_10)
-        self.label_depth.setObjectName(u"label_depth")
-
-        self.horizontalLayout_8.addWidget(self.label_depth)
-
-
-        self.verticalLayout_3.addWidget(self.frame_10)
-
-        self.line_6 = QFrame(self.frame_4)
-        self.line_6.setObjectName(u"line_6")
-        self.line_6.setFrameShape(QFrame.HLine)
-        self.line_6.setFrameShadow(QFrame.Sunken)
-
-        self.verticalLayout_3.addWidget(self.line_6)
-
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.verticalLayout_3.addItem(self.verticalSpacer)
-
-        self.frame_11 = QFrame(self.frame_4)
-        self.frame_11.setObjectName(u"frame_11")
-        self.frame_11.setFrameShape(QFrame.StyledPanel)
-        self.frame_11.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_9 = QHBoxLayout(self.frame_11)
-        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.label_9 = QLabel(self.frame_11)
-        self.label_9.setObjectName(u"label_9")
-
-        self.horizontalLayout_9.addWidget(self.label_9)
-
-        self.label_date = QLabel(self.frame_11)
-        self.label_date.setObjectName(u"label_date")
-
-        self.horizontalLayout_9.addWidget(self.label_date)
-
-
-        self.verticalLayout_3.addWidget(self.frame_11)
-
-
-        self.horizontalLayout.addWidget(self.frame_4)
+        self.verticalLayout_4.addWidget(self.frame_3)
 
 
         self.verticalLayout.addWidget(self.frame_2)
@@ -364,17 +274,9 @@ class Ui_MainWindow(object):
         self.close_btn.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Close</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.close_btn.setText("")
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Loaction :", None))
-        self.label_loc.setText(QCoreApplication.translate("MainWindow", u"-", None))
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Area :", None))
-        self.label_area.setText(QCoreApplication.translate("MainWindow", u"-", None))
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Type :", None))
-        self.label_type.setText(QCoreApplication.translate("MainWindow", u"-", None))
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"P :", None))
-        self.label_p.setText(QCoreApplication.translate("MainWindow", u"-", None))
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Depth :", None))
-        self.label_depth.setText(QCoreApplication.translate("MainWindow", u"-", None))
-        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Date :", None))
-        self.label_date.setText(QCoreApplication.translate("MainWindow", u"-", None))
+        self.LBL_segment_ID.setText(QCoreApplication.translate("MainWindow", u"Segment ID :", None))
+        self.LBL_segment_ID_value.setText(QCoreApplication.translate("MainWindow", u"-", None))
+        self.LBL_segment_position.setText(QCoreApplication.translate("MainWindow", u"Segment Postion :", None))
+        self.LBL_segment_position_value.setText(QCoreApplication.translate("MainWindow", u"-", None))
     # retranslateUi
 

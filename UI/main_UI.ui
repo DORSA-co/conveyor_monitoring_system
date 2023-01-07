@@ -3806,7 +3806,7 @@ QPushButton:pressed {
                          <rect>
                           <x>0</x>
                           <y>0</y>
-                          <width>241</width>
+                          <width>302</width>
                           <height>158</height>
                          </rect>
                         </property>
@@ -5060,8 +5060,8 @@ QPushButton:pressed {
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>98</width>
-                      <height>28</height>
+                      <width>278</width>
+                      <height>459</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -5128,8 +5128,8 @@ QPushButton:pressed {
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>98</width>
-                      <height>28</height>
+                      <width>593</width>
+                      <height>414</height>
                      </rect>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_2">

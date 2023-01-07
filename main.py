@@ -135,12 +135,8 @@ class UI_main_window(QMainWindow, ui):
             NO_IMAGE.shape[0], NO_IMAGE.shape[1], Qt.KeepAspectRatio
         )
 
-        # self.current_h_segment = np.ones((WIDTH, SHOW_BOUND), np.uint8) * 255
         self.current_segment = np.ones((SHOW_BOUND, WIDTH, 3), np.uint8) * 255
         self.flag_draw_defect = False
-
-        # self.LBL_live_camera.setPixmap(self.pixmap)
-        # self.LBL_live_camera_for_setting_image_quality.setPixmap(self.pixmap)
 
         # speed parameter###################################################
         self.pixel_size = 0.00647  # cm
@@ -150,7 +146,7 @@ class UI_main_window(QMainWindow, ui):
         self.rate = 30  # int(v*tpf)#pixel per frame
         self.speed_rate = 100 / (self.rate * 14 * self.fps)  # cm per frame
         self.belt_height = 10000
-        ###################################################################
+
         # position param................................
         self.num_frames = 0
         self.process_flag = False
@@ -160,35 +156,26 @@ class UI_main_window(QMainWindow, ui):
         self.segment_index = 0
         self.frame_pre_segment = 30
         self.image_pre_row = 6
-        # ______________________________???
-        self.length_of_conveyor = 30000  # length of conveyor in cm unit
-
         self.first_point = 0
         self.update_step = int(SHOW_BOUND // self.rate)
         self.last_point = self.update_step
-        ###################################################################
 
         # camera setting##############################
         self.laod_camera_parms()
         self.load_camera_calibration()
-
-        #############################################
+        # algo tool setting
         self.widget_connector()
         self.profile = ProfileMeter()
         self.mask = heatmap(WIDTH, chanel=1)
-
-        self.set_image_label(self.LBL_live_camera, NO_IMAGE)
-
-        # __________________________________
         self.z_heatmap = heatmap(WIDTH, chanel=1, creat_total_32=True)
-        # __________________________________
 
         self._old_pos = None
         self.pos_ = self.pos()
-
         # camera connection
         self.live_flag = False
         self.detect_flag = False
+
+        self.set_image_label(self.LBL_live_camera, NO_IMAGE)
 
         self.timer_live = QTimer(self)
         self.timer_live.timeout.connect(self.set_live_image)
@@ -196,6 +183,7 @@ class UI_main_window(QMainWindow, ui):
         self.timer_live_detect = QTimer(self)
         self.timer_live_detect.timeout.connect(self.surface_scanning)
 
+        # _____________________________should check_____________________________
         self.save_defect_images_list_name_file = []
         self.save_defect_images_list = []
         self.timer_save_defect_images = QTimer(self)
@@ -205,6 +193,7 @@ class UI_main_window(QMainWindow, ui):
         self.defect_slider_show.timeout.connect(self.UpDate_Slider)
         self.current_image_list = []
         self.json_list = []
+        # __________________________________________________________
 
         self.segment_path = []
         self.create_segment_slider()
@@ -236,8 +225,8 @@ class UI_main_window(QMainWindow, ui):
     # ___________________________________________segment handling part
     def create_segment_slider(self):
 
-        self.segment_annotation = Annotation()
         i = 0
+        self.segment_annotation = Annotation()
         image_per_row = self.image_pre_row
         frame_longitudinal_precision = self.frame_per_roll // self.frame_pre_segment
 
@@ -319,7 +308,6 @@ class UI_main_window(QMainWindow, ui):
             image_per_row=image_per_row,
         )
 
-    # ___________________________________________
     def update_pixel_value(self):
 
         val = int(self.label_width_p_value.text()) / self.spinBox_pixel_value.value()
@@ -824,9 +812,26 @@ class UI_main_window(QMainWindow, ui):
             self.display_segment_schematic(
                 mask, z_mask[self.first_point : self.last_point]
             )
+            if self.num_frames == self.frame_pre_segment:
+                self.segment_detail_list[self.segment_index] = self.current_segment
+                self.segment_annotation.write(
+                    os.path.join(
+                        segments_info,
+                        str(self.segment_index),
+                        str(self.segment_index) + ".json",
+                    )
+                )
+
             if self.segment_index != ((self.num_frames - 1) // self.frame_pre_segment):
                 self.segment_index = (self.num_frames - 1) // self.frame_pre_segment
                 self.segment_detail_list[self.segment_index] = self.current_segment
+                self.segment_annotation.write(
+                    os.path.join(
+                        segments_info,
+                        str(self.segment_index),
+                        str(self.segment_index) + ".json",
+                    )
+                )
 
             if DEBUG_UI:
                 cv2.namedWindow("aaaaaaaaaaaaaa", cv2.WINDOW_NORMAL)
@@ -853,6 +858,15 @@ class UI_main_window(QMainWindow, ui):
     def display_segment_schematic(self, mask, z_value):
 
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        details = {}
+        # details["defects_boundbox_list"] = []
+        details["defects_position_list"] = []
+        details["defects_depth_list"] = []
+        details["defects_type_list"] = []
+        details["defects_area_list"] = []
+        details["defects_xpixel_list"] = []
+        details["defects_ypixel_list"] = []
+
         for _, cnt in enumerate(contours):
             (
                 check_flag,
@@ -886,7 +900,15 @@ class UI_main_window(QMainWindow, ui):
                 else:
                     color = (229, 236, 9)
                     type_ = "farsayesh"
-                position = (x + (w // 2), y + (h // 2))
+
+                details["defects_ypixel_list"].append(locs[0].tolist())
+                details["defects_xpixel_list"].append(locs[1].tolist())
+                # details["defects_boundbox_list"].append(err_cordinats)
+                details["defects_depth_list"].append(detph)
+                details["defects_type_list"].append(type_)
+                details["defects_area_list"].append(area)
+                details["defects_position_list"].append((x + (w // 2), y + (h // 2)))
+
                 self.current_segment[locs[0], locs[1], 0] = z_value[locs[0], locs[1]]
                 self.current_segment[locs[0], locs[1], 1] = z_value[locs[0], locs[1]]
                 self.current_segment[locs[0], locs[1], 2] = z_value[locs[0], locs[1]]
@@ -894,11 +916,35 @@ class UI_main_window(QMainWindow, ui):
                 self.current_segment = cv2.rectangle(
                     self.current_segment, (x, y), (x + w, y + h), color, 3
                 )
-
+        self.segment_annotation.set_all(details=details)
         # self.set_image_label(self.LBL_live_camera, mask)
         # self.set_image_label(self.LBL_live_camera, z_value)
         self.set_image_label(self.LBL_live_camera, self.current_segment)
 
+    def save_segment_schematic(self):
+
+        if self.num_frames == self.frame_pre_segment:
+            cv2.imwrite(
+                os.path.join(
+                    segments_info,
+                    str(self.segment_index),
+                    str(self.segment_index) + ".png",
+                ),
+                self.current_segment,
+            )
+
+        if self.segment_index != ((self.num_frames - 1) // self.frame_pre_segment):
+            self.segment_index = (self.num_frames - 1) // self.frame_pre_segment
+            cv2.imwrite(
+                os.path.join(
+                    segments_info,
+                    str(self.segment_index),
+                    str(self.segment_index) + ".png",
+                ),
+                self.current_segment,
+            )
+
+    # _____________________________________________________should check
     def write_defect_images(self):
         if len(self.save_defect_images_list) > 0:
             mask = self.save_defect_images_list.pop(0)
@@ -927,63 +973,7 @@ class UI_main_window(QMainWindow, ui):
             image_per_row=6,
         )
 
-    def draw_err_zone(self, mask):
-        """this function indicate zone and shape of err on conveyor shematic
-
-        Parameters
-        ----------
-        mask : np.ndarray
-            the mask that the detected err on it
-        """
-
-        if self.num_frames % int(SHOW_BOUND / self.rate) == 0:
-            self.process_flag = True
-        else:
-            self.process_flag = False
-
-        color = 255
-        raw_canvas = np.zeros(mask.shape)
-
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        for k, cnt in enumerate(contours):
-            (
-                check_flag,
-                area,
-                perimeter,
-                thickness,
-                Type,
-                err_cordinats,
-            ) = self.defects_features_extractor(cnt)
-            if check_flag:
-                x, y, w, h = err_cordinats
-                x1, y1 = average_moveing_contour(
-                    cnt=cnt,
-                )
-                raw_canvas[y1, x1] = 255
-                cv2.line(raw_canvas, (x1[0], y1[0]), (x1[-1], y1[-1]), 255, thickness=1)
-                raw_canvas = cv2.rectangle(raw_canvas, (x, y), (x + w, y + h), color, 3)
-
-                if self.process_flag:
-                    self.save_defect_images_list.append(
-                        raw_canvas[y : y + h, x : x + w]
-                    )
-                    path = str(self.image_index) + "_" + str(k) + ".jpg"
-                    self.save_defect_images_list_name_file.append(path)
-                    x_c = ((SHOW_BOUND / self.rate) * (self.image_index - 1)) + (
-                        x + (w / 2)
-                    )
-                    y_c = y + (h / 2)
-                    default_details = {
-                        "date": "{}".format(date_module.get_datetime()),
-                        "loc": "({},{})".format(x_c, y_c),
-                        "area": "{}".format(area),
-                        "type": "{}".format(Type),
-                        "perimeter": "{}".format(perimeter),
-                        "depth": "{}".format(thickness),
-                    }
-                    self.json_list.append(default_details)
-
-        return raw_canvas
+    # _____________________________________________________
 
     def defects_features_extractor(self, cnt):
         """this function get contour image of detected err,and extract the features of it
@@ -1214,8 +1204,6 @@ class UI_main_window(QMainWindow, ui):
             if it.is_dir():
                 print(it.path)
                 self.folders.append(it)
-        # print(folders)
-        # name=['1','2','3','4','1','2','3','4','1','2','3','4','1','2','3','4']
         for _, button_number in enumerate(self.folders):
             button = QPushButton()
             bt = str(button_number).split("'")[1]

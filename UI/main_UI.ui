@@ -848,7 +848,7 @@ QPushButton:pressed {
              <string notr="true">background-color:#F1F1F1;</string>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="general_setting">
              <layout class="QVBoxLayout" name="verticalLayout_35">
@@ -3967,12 +3967,8 @@ QPushButton:pressed {
                          <rect>
                           <x>0</x>
                           <y>0</y>
-                          <width>302</width>
-<<<<<<< HEAD
-                          <height>181</height>
-=======
+                          <width>241</width>
                           <height>158</height>
->>>>>>> 222c2c6d74d2894b9e2d2b4bb0294153b51b7f06
                          </rect>
                         </property>
                         <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -5204,19 +5200,8 @@ QPushButton:pressed {
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_16">
-                 <item alignment="Qt::AlignRight">
-                  <widget class="QPushButton" name="btn_refresh_history">
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset>
-                     <normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/refresh(1).png</normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/refresh(1).png</iconset>
-                   </property>
-                  </widget>
-                 </item>
                  <item>
-                  <widget class="QScrollArea" name="scrollArea_2">
+                  <widget class="QScrollArea" name="scrollArea">
                    <property name="widgetResizable">
                     <bool>true</bool>
                    </property>
@@ -5226,19 +5211,72 @@ QPushButton:pressed {
                       <x>0</x>
                       <y>0</y>
                       <width>278</width>
-<<<<<<< HEAD
                       <height>510</height>
-=======
-                      <height>459</height>
->>>>>>> 222c2c6d74d2894b9e2d2b4bb0294153b51b7f06
                      </rect>
                     </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_21">
+                    <layout class="QVBoxLayout" name="verticalLayout_25">
                      <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_20"/>
+                      <widget class="QFrame" name="frame_81">
+                       <property name="minimumSize">
+                        <size>
+                         <width>178</width>
+                         <height>150</height>
+                        </size>
+                       </property>
+                       <property name="frameShape">
+                        <enum>QFrame::Panel</enum>
+                       </property>
+                       <property name="frameShadow">
+                        <enum>QFrame::Raised</enum>
+                       </property>
+                       <layout class="QVBoxLayout" name="verticalLayout_10">
+                        <property name="spacing">
+                         <number>10</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>10</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>10</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>10</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>10</number>
+                        </property>
+                        <item>
+                         <layout class="QVBoxLayout" name="verticalLayout_24"/>
+                        </item>
+                        <item>
+                         <spacer name="verticalSpacer_3">
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>20</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
+                      </widget>
                      </item>
                     </layout>
                    </widget>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignRight">
+                  <widget class="QPushButton" name="btn_refresh_history">
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/refresh(1).png</normaloff>C:/Users/Dorsa-Admin/.designer/backup/images_icon/refresh(1).png</iconset>
+                   </property>
                   </widget>
                  </item>
                 </layout>
@@ -5297,13 +5335,8 @@ QPushButton:pressed {
                      <rect>
                       <x>0</x>
                       <y>0</y>
-<<<<<<< HEAD
                       <width>586</width>
                       <height>465</height>
-=======
-                      <width>593</width>
-                      <height>414</height>
->>>>>>> 222c2c6d74d2894b9e2d2b4bb0294153b51b7f06
                      </rect>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_2">

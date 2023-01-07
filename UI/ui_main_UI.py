@@ -1216,7 +1216,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.scrollAreaWidgetContents_5 = QWidget()
         self.scrollAreaWidgetContents_5.setObjectName(u"scrollAreaWidgetContents_5")
-        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 302, 181))
+        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 241, 158))
         self.horizontalLayout_14 = QHBoxLayout(self.scrollAreaWidgetContents_5)
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
         self.frame_20 = QFrame(self.scrollAreaWidgetContents_5)
@@ -1786,6 +1786,39 @@ class Ui_MainWindow(object):
         self.frame_13.setFrameShadow(QFrame.Raised)
         self.verticalLayout_16 = QVBoxLayout(self.frame_13)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
+        self.scrollArea = QScrollArea(self.frame_13)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_3 = QWidget()
+        self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
+        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 278, 510))
+        self.verticalLayout_25 = QVBoxLayout(self.scrollAreaWidgetContents_3)
+        self.verticalLayout_25.setObjectName(u"verticalLayout_25")
+        self.frame_81 = QFrame(self.scrollAreaWidgetContents_3)
+        self.frame_81.setObjectName(u"frame_81")
+        self.frame_81.setMinimumSize(QSize(178, 150))
+        self.frame_81.setFrameShape(QFrame.Panel)
+        self.frame_81.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_10 = QVBoxLayout(self.frame_81)
+        self.verticalLayout_10.setSpacing(10)
+        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.verticalLayout_10.setContentsMargins(10, 10, 10, 10)
+        self.verticalLayout_24 = QVBoxLayout()
+        self.verticalLayout_24.setObjectName(u"verticalLayout_24")
+
+        self.verticalLayout_10.addLayout(self.verticalLayout_24)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_10.addItem(self.verticalSpacer_3)
+
+
+        self.verticalLayout_25.addWidget(self.frame_81)
+
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents_3)
+
+        self.verticalLayout_16.addWidget(self.scrollArea)
+
         self.btn_refresh_history = QPushButton(self.frame_13)
         self.btn_refresh_history.setObjectName(u"btn_refresh_history")
         icon18 = QIcon()
@@ -1793,23 +1826,6 @@ class Ui_MainWindow(object):
         self.btn_refresh_history.setIcon(icon18)
 
         self.verticalLayout_16.addWidget(self.btn_refresh_history, 0, Qt.AlignRight)
-
-        self.scrollArea_2 = QScrollArea(self.frame_13)
-        self.scrollArea_2.setObjectName(u"scrollArea_2")
-        self.scrollArea_2.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_3 = QWidget()
-        self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
-        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 278, 510))
-        self.verticalLayout_21 = QVBoxLayout(self.scrollAreaWidgetContents_3)
-        self.verticalLayout_21.setObjectName(u"verticalLayout_21")
-        self.verticalLayout_20 = QVBoxLayout()
-        self.verticalLayout_20.setObjectName(u"verticalLayout_20")
-
-        self.verticalLayout_21.addLayout(self.verticalLayout_20)
-
-        self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_3)
-
-        self.verticalLayout_16.addWidget(self.scrollArea_2)
 
 
         self.horizontalLayout_9.addWidget(self.frame_13)
@@ -1964,7 +1980,7 @@ class Ui_MainWindow(object):
         self.horizontalSlider_8.valueChanged.connect(self.threshold_2_spin.setValue)
         self.threshold_2_spin.valueChanged.connect(self.horizontalSlider_8.setValue)
 
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(3)
         self.tabWidget.setCurrentIndex(0)
 
 

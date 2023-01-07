@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QLabel as sQLabel
 from PySide6.QtWidgets import QHBoxLayout as sQHBoxLayout
+from PySide6.QtWidgets import QVBoxLayout as sQVBoxLayout
 import cv2
 from PySide6.QtGui import QImage as sQImage
 from PySide6.QtGui import QPixmap as sQPixmap
@@ -20,6 +21,7 @@ def create_image_slider_on_ui(
     prefix="defect",
     image_per_row=n_images_per_row,
     # segments=None,
+    orientation='H'
 ):
     """this function is used to create dataset image slider on ui binary list page, this slider is used to show dataset images
 
@@ -36,9 +38,11 @@ def create_image_slider_on_ui(
     :return: a boolean determining if the slider is initialized
     :rtype: boolean
     """
-
-    # create layout
     layout = sQHBoxLayout()
+    if orientation == 'V':
+        layout = sQVBoxLayout()
+    # create layout
+    
     eval("exec('ui_obj.%s_layout = layout')" % prefix)
 
     # creat and assign labels to layout

@@ -39,11 +39,11 @@ from functools import partial
 from popup_window import UI_popup_window
 from utils.json_modules import Annotation
 from backend import date_module
-
+from pathlib import Path
 
 WIDTH = 3840
 SHOW_BOUND = 900
-PATH_DEFECT_SPLIT = r"defect_split"
+PATH_DEFECT_SPLIT = "segments_info"
 NO_IMAGE = cv2.imread(r"UI\images_icon\no_image.png")
 image_open_camera = "UI\images_icon\camera_connected.png"
 image_close_camera = "UI\images_icon\camera_disconnected.png"
@@ -216,6 +216,42 @@ class UI_main_window(QMainWindow, ui):
             partial(lambda: update_imagesslider_on_ui(ui_obj=self, prevornext="next"))
         )
 
+
+
+
+
+        # self.segment_path_history = []
+        # self.segment_history = "segment_history"
+        # self.segment_image_list_history = moveOnImagrList(
+        #     sub_directory=segments_info,
+        # )
+        # self.segment_image_list_history.add(self.segment_path_history, self.segment_history)
+        # self.segment_image_list_history_next_func = self.segment_image_list_history.build_next_func(
+        #     name=self.segment_history
+        # )
+        # self.segment_image_list_history_prev_func = self.segment_image_list_history.build_prev_func(
+        #     name=self.segment_history
+        # )
+        # update_imagesslider_on_ui(ui_obj=self)
+        # self.defects_next_btn_history.clicked.connect(
+        #     partial(lambda: update_imagesslider_on_ui(ui_obj=self, prevornext="prev"))
+        # )
+        # self.defects_prev_btn_history.clicked.connect(
+        #     partial(lambda: update_imagesslider_on_ui(ui_obj=self, prevornext="next"))
+        # )
+
+
+
+
+
+
+
+
+
+
+
+
+
         self.width_spinbox.valueChanged.connect(self.update_pixel_value)
         self.spinBox_pixel_value.valueChanged.connect(self.update_pixel_value)
         self.BTN_history.clicked.connect(self.load_history)
@@ -342,6 +378,15 @@ class UI_main_window(QMainWindow, ui):
             prefix="segment",
             image_per_row=image_per_row,
         )
+
+        # self.slider = create_image_slider_on_ui(
+        #     ui_obj=self,
+        #     db_obj=self.db,
+        #     frame_obj=self.segment_list_slider_frame_history,
+        #     prefix="segment",
+        #     image_per_row=image_per_row,
+        #     orientation='V'
+        # )
 
     def update_pixel_value(self):
 
@@ -1244,16 +1289,19 @@ class UI_main_window(QMainWindow, ui):
         self.create_folders()
 
     def create_folders(self):
-        self.clearLayout(self.verticalLayout_20)
+        self.clearLayout(self.verticalLayout_24)
         self.folders = []
-        for it in os.scandir(PATH_DEFECT_SPLIT):
-            if it.is_dir():
-                print(it.path)
-                self.folders.append(it)
+        # for it in os.scandir(PATH_DEFECT_SPLIT):
+        #     if it.is_dir():
+        #         print(it.path)
+        #         self.folders.append(it)
+
+        self.folders=sorted(os.listdir(PATH_DEFECT_SPLIT), key=len)
+
         for _, button_number in enumerate(self.folders):
             button = QPushButton()
-            bt = str(button_number).split("'")[1]
-            button.setText(bt)
+            # bt = str(button_number).split("'")[1]
+            button.setText(button_number)
             button.setObjectName("%d" % _)
             button.clicked.connect(self.click)
             button.setFont(QFont("Sanserif", 15))
@@ -1261,10 +1309,11 @@ class UI_main_window(QMainWindow, ui):
             button.setIconSize(QSize(10, 10))
             button.setCursor(Qt.PointingHandCursor)
             button.setStyleSheet(
-                "QPushButton { background-color: rgb(0, 0, 0);color : rgb(255,255,255)}"
+                "QPushButton { background-color: #3C6255;color : rgb(255,255,255)}"
             )
-            self.verticalLayout_20.addWidget(button)
-
+            print('aaaaaaaaaaaaaaaaaaaaaaaa')
+            self.verticalLayout_24.addWidget(button)
+        print('bbbbbbbbbbbbb')
     def clearLayout(self, layout):
         while layout.count():
             child = layout.takeAt(0)
@@ -1277,13 +1326,13 @@ class UI_main_window(QMainWindow, ui):
         btnName = btn.objectName()
         print(btnName)
 
-        path_ = os.path.join(self.folders[int(btnName)])
+        path_ = os.path.join(PATH_DEFECT_SPLIT,btnName)
         print("path_  sssssssssss", path_)
         self.lineEdit_load_path.setText(path_)
         path = os.listdir(path_)
         self.img_path = []
         for it in path:
-            if it[-3:] == "jpg":
+            if it[-3:] == "png":
                 # print(it)
                 self.img_path.append(it)
         print(self.img_path)
@@ -1291,12 +1340,7 @@ class UI_main_window(QMainWindow, ui):
 
             label = QLabel()
             label.setObjectName("label_{}_{}".format(path_, i))
-            # label.mousePressEvent = self.show_image()
-            # label.clicked.connect(self.show_image)
-            label.setFont(QFont("Sanserif", 15))
             img_path = os.path.join(path_, i)
-            # self.set_btn_image(label, img_path)
-            # label.setIconSize(QSize(200,200))
             self.set_image_label(label, cv2.imread(img_path))
             label.setCursor(Qt.PointingHandCursor)
             self.gridLayout.addWidget(label)
@@ -1310,6 +1354,30 @@ class UI_main_window(QMainWindow, ui):
 
     def set_btn_image(self, btn_name, path):
         btn_name.setIcon(QIcon(path))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

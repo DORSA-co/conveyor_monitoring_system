@@ -47,9 +47,9 @@ class UI_hint_window(QMainWindow, ui):
         self.detail_of_segment["defects_depth_list"] = []
         self.detail_of_segment["defects_type_list"] = []
         self.detail_of_segment["defects_area_list"] = []
-        self.detail_of_segment["defects_ypixel_list"] = []
-        self.detail_of_segment["defects_xpixel_list"] = []
-        # self.detail_of_segment["defects_boundbox_list"] = []
+        # self.detail_of_segment["defects_ypixel_list"] = []
+        # self.detail_of_segment["defects_xpixel_list"] = []
+        self.detail_of_segment["defects_boundbox_list"] = []
         self.detail_of_segment["defects_position_list"] = []
 
     def rest_detail_info(self):
@@ -57,23 +57,22 @@ class UI_hint_window(QMainWindow, ui):
         self.detail_of_segment["defects_depth_list"] = []
         self.detail_of_segment["defects_type_list"] = []
         self.detail_of_segment["defects_area_list"] = []
-        self.detail_of_segment["defects_ypixel_list"] = []
-        self.detail_of_segment["defects_xpixel_list"] = []
-        # self.detail_of_segment["defects_boundbox_list"] = []
+        # self.detail_of_segment["defects_ypixel_list"] = []
+        # self.detail_of_segment["defects_xpixel_list"] = []
+        self.detail_of_segment["defects_boundbox_list"] = []
         self.detail_of_segment["defects_position_list"] = []
 
     def load_detail(self, annotation, path):
 
         detail = annotation.read(path)
-        self.detail_of_segment["defects_ypixel_list"] = detail["defects_ypixel_list"]
-        self.detail_of_segment["defects_xpixel_list"] = detail["defects_xpixel_list"]
-        # self.detail_of_segment["defects_boundbox_list"] = detail[
-        #     "defects_boundbox_list"
-        # ]
+        # self.detail_of_segment["defects_ypixel_list"] = detail["defects_ypixel_list"]
+        # self.detail_of_segment["defects_xpixel_list"] = detail["defects_xpixel_list"]
+        self.detail_of_segment["defects_boundbox_list"] = detail[
+            "defects_boundbox_list"
+        ]
         self.detail_of_segment["defects_position_list"] = detail[
             "defects_position_list"
         ]
-
         self.detail_of_segment["defects_depth_list"] = detail["defects_depth_list"]
         self.detail_of_segment["defects_type_list"] = detail["defects_type_list"]
         self.detail_of_segment["defects_area_list"] = detail["defects_area_list"]

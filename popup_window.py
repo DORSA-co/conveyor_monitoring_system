@@ -84,17 +84,19 @@ class UI_popup_window(QMainWindow, ui):
                 pass
 
     def check_click_in_defect(self, x, y):
-        ypixels = self.hint_window_obj.get_detail_of_segment_info(
-            key="defects_ypixel_list"
-        )
-        xpixels = self.hint_window_obj.get_detail_of_segment_info(
-            key="defects_xpixel_list"
+
+        boundbox = self.hint_window_obj.get_detail_of_segment_info(
+            key="defects_boundbox_list"
         )
         description = "amin"
-        for i, x_y in enumerate(zip(xpixels, ypixels)):
-            xlist, ylist = x_y
+        for i, bbox in enumerate(boundbox):
 
-            if (x in xlist) and (y in ylist):
+            if (
+                bbox[0] <= x
+                and bbox[1] <= y
+                and (bbox[0] + bbox[2]) >= x
+                and (bbox[1] + bbox[3]) >= y
+            ):
 
                 depth = self.hint_window_obj.get_detail_of_segment_info(
                     key="defects_depth_list"

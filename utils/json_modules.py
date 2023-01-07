@@ -15,33 +15,40 @@ class Annotation:
         self.annotation = {}
 
     def set_all(self, details):
-        # self.set_defects_boundbox_list(details["defects_boundbox_list"])
+        self.set_defects_boundbox_list(details["defects_boundbox_list"])
         self.set_defects_area_list(details["defects_area_list"])
         self.set_defects_depth_list(details["defects_depth_list"])
         self.set_defects_type_list(details["defects_type_list"])
-        self.set_defects_ypixel_list(details["defects_ypixel_list"])
-        self.set_defects_xpixel_list(details["defects_xpixel_list"])
+        # self.set_defects_ypixel_list(details["defects_ypixel_list"])
+        # self.set_defects_xpixel_list(details["defects_xpixel_list"])
         self.set_defects_position_list(details["defects_position_list"])
 
     def set_defects_boundbox_list(self, defects_boundbox_list):
+        # self.annotation["defects_boundbox_list"] = []
         self.annotation["defects_boundbox_list"] = defects_boundbox_list
 
     def set_defects_area_list(self, defects_area_list):
+        # self.annotation["defects_area_list"] = []
         self.annotation["defects_area_list"] = defects_area_list
 
     def set_defects_depth_list(self, defects_depth_list):
+        # self.annotation["defects_depth_list"] = []
         self.annotation["defects_depth_list"] = defects_depth_list
 
     def set_defects_type_list(self, defects_type_list):
+        # self.annotation["defects_type_list"] = []
         self.annotation["defects_type_list"] = defects_type_list
 
     def set_defects_xpixel_list(self, defects_xpixel_list):
+        # self.annotation["defects_xpixel_list"] = []
         self.annotation["defects_xpixel_list"] = defects_xpixel_list
 
     def set_defects_ypixel_list(self, defects_ypixel_list):
+        # self.annotation["defects_ypixel_list"] = []
         self.annotation["defects_ypixel_list"] = defects_ypixel_list
 
     def set_defects_position_list(self, defects_position_list):
+        # self.annotation["defects_position_list"] = []
         self.annotation["defects_position_list"] = defects_position_list
 
 

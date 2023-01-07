@@ -264,8 +264,8 @@ def maximize_image_on_click(index, ui_obj, db_obj, label, event):
         ui_obj.popup_window_obj.show()
         path = os.path.join(
             segments_info,
-            str(ui_obj.segment_index),
-            str(ui_obj.segment_index) + ".json",
+            str(clicked_index),
+            str(clicked_index) + ".json",
         )
 
         if os.path.exists(path):

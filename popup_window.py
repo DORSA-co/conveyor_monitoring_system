@@ -26,6 +26,8 @@ from PySide6.QtCore import QObject, QThread, Signal
 from functools import partial
 
 
+from hint_window import UI_hint_window
+
 ui, _ = loadUiType("UI/popup_window.ui")
 os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100%
 NO_IMAGE = cv2.imread(r"UI\images_icon\no_image.png")
@@ -62,6 +64,57 @@ class UI_popup_window(QMainWindow, ui):
         self._old_pos = None
         self.pos_ = self.pos()
         self.update_image_details()
+
+        self.label_image.mousePressEvent = self.getpos
+        self.hint_window_obj = UI_hint_window()
+
+    def getpos(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            x = event.pos().x()
+            y = event.pos().y()
+            flag, description = self.check_click_in_defect(x, y)
+            if flag:
+                self.hint_window_obj.LBL_info.setText(description)
+                self.hint_window_obj.show()
+
+        elif event.button() == QtCore.Qt.RightButton:
+            try:
+                self.hint_window_obj.close()
+            except:
+                pass
+
+    def check_click_in_defect(self, x, y):
+        ypixels = self.hint_window_obj.get_detail_of_segment_info(
+            key="defects_ypixel_list"
+        )
+        xpixels = self.hint_window_obj.get_detail_of_segment_info(
+            key="defects_xpixel_list"
+        )
+        description = "amin"
+        for i, x_y in enumerate(zip(xpixels, ypixels)):
+            xlist, ylist = x_y
+
+            if (x in xlist) and (y in ylist):
+
+                depth = self.hint_window_obj.get_detail_of_segment_info(
+                    key="defects_depth_list"
+                )[i]
+                position = self.hint_window_obj.get_detail_of_segment_info(
+                    key="defects_position_list"
+                )[i]
+                type_ = self.hint_window_obj.get_detail_of_segment_info(
+                    key="defects_type_list"
+                )[i]
+                area = self.hint_window_obj.get_detail_of_segment_info(
+                    key="defects_area_list"
+                )[i]
+                description = "this defect in postion:{},is {},\n the depth is {} \n and the area is {}".format(
+                    position, type_, depth, area
+                )
+
+                return True, description
+
+        return False, description
 
     def mousePressEvent(self, event):
         """

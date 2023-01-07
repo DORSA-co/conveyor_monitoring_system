@@ -3968,7 +3968,11 @@ QPushButton:pressed {
                           <x>0</x>
                           <y>0</y>
                           <width>302</width>
+<<<<<<< HEAD
                           <height>181</height>
+=======
+                          <height>158</height>
+>>>>>>> 222c2c6d74d2894b9e2d2b4bb0294153b51b7f06
                          </rect>
                         </property>
                         <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -5222,7 +5226,11 @@ QPushButton:pressed {
                       <x>0</x>
                       <y>0</y>
                       <width>278</width>
+<<<<<<< HEAD
                       <height>510</height>
+=======
+                      <height>459</height>
+>>>>>>> 222c2c6d74d2894b9e2d2b4bb0294153b51b7f06
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -5289,8 +5297,13 @@ QPushButton:pressed {
                      <rect>
                       <x>0</x>
                       <y>0</y>
+<<<<<<< HEAD
                       <width>586</width>
                       <height>465</height>
+=======
+                      <width>593</width>
+                      <height>414</height>
+>>>>>>> 222c2c6d74d2894b9e2d2b4bb0294153b51b7f06
                      </rect>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_2">

@@ -6,9 +6,11 @@ from PySide6.QtGui import QPixmap as sQPixmap
 from functools import partial
 import json
 import numpy as np
+import os
 
 n_images_per_row = 6
 no_image_path = "UI/images_icon/no_image.png"  # path for a raw image (using for labels default image)
+segments_info = r"segments_info"
 
 
 def create_image_slider_on_ui(
@@ -59,6 +61,7 @@ def create_image_slider_on_ui(
         # doble-click event for labels
         eval("ui_obj.%s_label_%s" % (prefix, i)).mouseDoubleClickEvent = partial(
             maximize_image_on_click,
+            i,
             ui_obj,
             db_obj,
             eval("ui_obj.%s_label_%s" % (prefix, i)),
@@ -213,6 +216,7 @@ def set_image_to_ui_slider_full_path(
     # set dataset images on UI
     temp_i = 0
     for i, image_path in enumerate(image_path_list):
+
         # load image
         if image_path[-3:] == "jpg":
             image = cv2.imread(image_path)
@@ -248,23 +252,27 @@ def set_image_to_ui_slider_full_path(
 
 
 # maximize image label on click (open image in a window)
-def maximize_image_on_click(ui_obj, db_obj, label, event):
-    """this function is used to maximize an image lable on click (open new image viewer window)
-
-    :param ui_obj: main ui object
-    :type ui_obj: _type_
-    :param db_obj: database object
-    :type db_obj: _type_
-    :param label: label name
-    :type label: _type_
-    :param event: _description_
-    :type event: _type_
-    """
-
-    # try:
-    ui_obj.popup_window_obj.set_and_update_schematic(
-        ui_obj.segment_detail_list[ui_obj.segment_index], ui_obj.segment_index, 5
+def maximize_image_on_click(index, ui_obj, db_obj, label, event):
+    slide_index = (ui_obj.num_frames - 1) // (
+        (ui_obj.frame_pre_segment) * (ui_obj.image_pre_row)
     )
-    ui_obj.popup_window_obj.show()
-    # except:
-    #     pass
+    clicked_index = (slide_index * ui_obj.image_pre_row) + index
+    try:
+        ui_obj.popup_window_obj.set_and_update_schematic(
+            ui_obj.segment_detail_list[clicked_index], clicked_index, 5
+        )
+        ui_obj.popup_window_obj.show()
+        path = os.path.join(
+            segments_info,
+            str(ui_obj.segment_index),
+            str(ui_obj.segment_index) + ".json",
+        )
+
+        if os.path.exists(path):
+            ui_obj.popup_window_obj.hint_window_obj.load_detail(
+                annotation=ui_obj.segment_annotation,
+                path=path,
+            )
+
+    except:
+        pass

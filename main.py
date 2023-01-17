@@ -699,7 +699,7 @@ class UI_main_window(QMainWindow, ui):
             height=height,
             offet_x=offsetx,
             offset_y=offsrty,
-            manual=False,
+            manual=True,
             list_devices_mode=False,
         )
         # try:

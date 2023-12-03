@@ -73,7 +73,7 @@ def extract_points(numpy.ndarray[DTYPE_uint8, ndim=2] img, int thresh, int persp
         for j in range(img_h):
             if img[j,i] > thresh:
                 
-                # remove noise 
+                
                 if total_count>0 and total_count<3 and j - last_j > 5:
                     total_count = 1
                     total_sum = j

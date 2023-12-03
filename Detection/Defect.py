@@ -39,6 +39,7 @@ def defect_detection_find_max(fname,idx_TEAR_DEPTH):
 
 
 def defect_detection(frame_idx,fname,idx_gradient_number,idx_pix_length, idx_pix_width,idx_TEAR_DEPTH,idx_TEAR_GRADIENT_SIZE,idx_MAX_ERROR,idx_Depth_Critical,idx_Width_critical,idx_Lenght_Critical,idx_Depth_not_Critical,idx_Width_not_critical,idx_Lenght_not_Critical,idx_Depth_not_Critical_Max,idx_Width_not_critical_Max,idx_Lenght_not_Critical_Max,defect_tracker):
+    flag_laser=True
 
     GRADIANT_SIZE = idx_TEAR_GRADIENT_SIZE
     MAX_ERROR =idx_MAX_ERROR
@@ -76,7 +77,7 @@ def defect_detection(frame_idx,fname,idx_gradient_number,idx_pix_length, idx_pix
     ################################### for getting image from camera             #######################################
     #img=fname
     if fname.ndim >2 :
-            fname = cv2.cvtColor(fname, cv2.COLOR_BGR2GRAY)
+          fname = cv2.cvtColor(fname, cv2.COLOR_BGR2GRAY)
     #img = fname[:, 100:620]
     img = fname[:, 25:620]
     # -----------------------------------------------------------------------5
@@ -97,9 +98,13 @@ def defect_detection(frame_idx,fname,idx_gradient_number,idx_pix_length, idx_pix
    
 
     if len(pts) < 20:
-                 pts = np.zeros((640, 2), dtype=np.int32)
-                 pts[:, 0] = np.arange(0, len(pts))
-                 pts[:, 1] = 618
+                flag_laser=False
+                pts = np.zeros((640, 2), dtype=np.int32)
+                pts[:, 0] = np.arange(0, len(pts))
+                pts[:, 1] = 618
+                return None, None, None, None,flag_laser
+
+                 
 
     # -----------------------------------------------------------------------
     res_y = ConvayerBase.moving_avrage(pts[:, 1], 10)    #self.MOVING_AVRAGE=10
@@ -115,67 +120,75 @@ def defect_detection(frame_idx,fname,idx_gradient_number,idx_pix_length, idx_pix
             # curve_parms,_ = curve_fit(curve_func, pts[:,0], pts[:,1])
             # good_y = curve_func(pts[:,0], *curve_parms)
     error_y = pts[:, 1] - good_y
-  
-    curve_parms, _ = curve_fit(
-                curve_function,
-                pts[abs(error_y) < 14][:, 0],
-                pts[abs(error_y) < 14][:, 1],
-    )
-   
-    good_y = curve_function(pts[:, 0], *curve_parms)
-    error_y = pts[:, 1] - good_y
-    error_y = pts[:, 1] - good_y
-    error_y[abs(error_y) <= 2] = 0
+
+
+    if len( pts[abs(error_y) < 14][:, 0])>3:
     
-    normalized_error_y = error_y / MAX_ERROR * GRADIANT_SIZE // 2
-    # print(abs(error_y).max())         
-    # print(1/t)
 
-    if frame_idx > res.shape[0] // step - step - 1:
-                frame_idx = res.shape[0] // step -step - 1
-                res[: -step] = res[step :]
-                depth_img[: -step] = depth_img[step :]
+        curve_parms, _ = curve_fit(
+                    curve_function,
+                    pts[abs(error_y) < 14][:, 0],
+                    pts[abs(error_y) < 14][:, 1],
+        )
+    
+        good_y = curve_function(pts[:, 0], *curve_parms)
+        error_y = pts[:, 1] - good_y
+        error_y = pts[:, 1] - good_y
+        error_y[abs(error_y) <= 2] = 0
+        
+        normalized_error_y = error_y / MAX_ERROR * GRADIANT_SIZE // 2
 
-
-    res[frame_idx * step : frame_idx * step + step,
-                pts[:, 0],
-            ] = gradiant[
-                np.clip(
-                    normalized_error_y + GRADIANT_SIZE // 2,
-                    0,
-                    GRADIANT_SIZE - 1,
-                ).astype(np.int32)
-            ]
-
-    depth_img[
-                frame_idx * step : frame_idx * step + step,
-                pts[:, 0],
-            ] = (
-                error_y * pix_mm_depth
-            )
-
-    # max_depth=self.defect_tracker.get_defect_infoes(depth_img=self.depth_img,img=self.res)
-
-    frame_idx += 1
-    defect_tracker.refresh(
-               res, depth_img=depth_img, pix_length=idx_pix_length, pix_width=idx_pix_width, Critical_Depth1=idx_Depth_Critical ,Critical_Width=idx_Width_critical,Critical_Lenght=idx_Lenght_Critical ,
-               not_Critical_Depth1=idx_Depth_not_Critical,not_Critical_Width=idx_Width_not_critical,not_Critical_Lenght=idx_Lenght_not_Critical,  not_Critical_Depth1_Max=idx_Depth_not_Critical_Max,not_Critical_Width_Max=idx_Width_not_critical_Max,not_Critical_Lenght_Max=idx_Lenght_not_Critical_Max,  #Critical_Depth=10
-            )
-    res_draw = defect_tracker.draw(res)
-
-    s = defect_tracker.function_inprogress_defects_cnts_x_y_w_h(
-                depth_img=depth_img, img=res
-            )
-            #### s = self.defect_tracker.function_inprogress_defects_cnts_x_y_w_h()
-    Number_Defect = defect_tracker.function_number_of_defect()
-    Total_Area = defect_tracker.function_total_area_of_defect()
-    Number_of_Critical_Defect = (
-                defect_tracker.function_number_of_critical_defect()
-    )
+        if frame_idx > res.shape[0] // step - step - 1:
+                    frame_idx = res.shape[0] // step -step - 1
+                    res[: -step] = res[step :]
+                    depth_img[: -step] = depth_img[step :]
 
 
+        res[frame_idx * step : frame_idx * step + step,
+                    pts[:, 0],
+                ] = gradiant[
+                    np.clip(
+                        normalized_error_y + GRADIANT_SIZE // 2,
+                        0,
+                        GRADIANT_SIZE - 1,
+                    ).astype(np.int32)
+                ]
+
+        depth_img[
+                    frame_idx * step : frame_idx * step + step,
+                    pts[:, 0],
+                ] = (
+                    error_y * pix_mm_depth
+                )
+
+        # max_depth=self.defect_tracker.get_defect_infoes(depth_img=self.depth_img,img=self.res)
+
+        frame_idx += 1
+        defect_tracker.refresh(
+                res, depth_img=depth_img, pix_length=idx_pix_length, pix_width=idx_pix_width, Critical_Depth1=idx_Depth_Critical ,Critical_Width=idx_Width_critical,Critical_Lenght=idx_Lenght_Critical ,
+                not_Critical_Depth1=idx_Depth_not_Critical,not_Critical_Width=idx_Width_not_critical,not_Critical_Lenght=idx_Lenght_not_Critical,  not_Critical_Depth1_Max=idx_Depth_not_Critical_Max,not_Critical_Width_Max=idx_Width_not_critical_Max,not_Critical_Lenght_Max=idx_Lenght_not_Critical_Max,  #Critical_Depth=10
+                )
+        res_draw = defect_tracker.draw(res)
+
+        s = defect_tracker.function_inprogress_defects_cnts_x_y_w_h(
+                    depth_img=depth_img, img=res
+                )
+                #### s = self.defect_tracker.function_inprogress_defects_cnts_x_y_w_h()
+        Number_Defect = defect_tracker.function_number_of_defect()
+        Total_Area = defect_tracker.function_total_area_of_defect()
+        Number_of_Critical_Defect = (
+                    defect_tracker.function_number_of_critical_defect()
+        )
+
+      
     #return res_draw, s, Number_Defect, Number_of_Critical_Defect,max_depth
-    return res_draw, s, Number_Defect, Number_of_Critical_Defect
+        return res_draw, s, Number_Defect, Number_of_Critical_Defect,flag_laser
+      
+    
+    else :
+          flag_laser=False
+          return None, None, None, None,flag_laser
+
 
 
 def function_total_complete_defects_cnts():

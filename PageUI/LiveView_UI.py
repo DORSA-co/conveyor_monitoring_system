@@ -4,6 +4,8 @@ from .Common_Function_UI import Common_Function_UI
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer
 from PyQt5 import QtGui
+import time
+
 
 class LiveView_UI(Common_Function_UI):
 
@@ -29,15 +31,30 @@ class LiveView_UI(Common_Function_UI):
             "Normal_live_view": self.ui.Normal_live_view,
         }
 
+        self.style_information_laser={
+
+         "Laser" : self.ui.Laser_Connection
+
+        }
+
         self.ui.Stop_connection.setEnabled(False)
         self.ui.live.setEnabled(False)
         self.ui.Stop.setEnabled(False)
         self.camera_connection=False
-        
-    def button_connector(self,camera_connection):   # input fun for getting image from folder
-        self.camera_connection=camera_connection
-        self.ui.Camera_connection.clicked.connect(partial(self.connect_camera))
-        self.ui.Stop_connection.clicked.connect(partial(self.disconnect_camera))
+       
+        #self.camera=False
+        self.t = time.time()
+        self.picktimer=None
+
+
+
+    #def button_connector(self,camera_connection):   # input fun for getting image from folder
+    def button_connector(self,fun1,fun2):   # input fun for getting image from folder
+        #self.camera_connection=camera_connection
+       ####### self.ui.Camera_connection.clicked.connect(partial(self.connect_camera))
+       ########## self.ui.Stop_connection.clicked.connect(partial(self.disconnect_camera))
+        self.ui.Camera_connection.clicked.connect(partial(fun1))
+        self.ui.Stop_connection.clicked.connect(partial(fun2))
        
 
        # self.ui.live.clicked.connect(
@@ -69,28 +86,24 @@ class LiveView_UI(Common_Function_UI):
         self.picktimer = QTimer()
         #self.picktimer.setInterval(0.001)
         self.picktimer.timeout.connect(fun)
-        self.picktimer.start()
+        self.picktimer.start(25)
+
+
+       ################ self.time = QTimer()
+        #self.picktimer.setInterval(0.001)
+       ################# self.time.timeout.connect(self.show_time)
+      #############  self.time.start(1000)
+
+
+    def show_time(self):
+
+        print(time.time()-self.t)
+
 
     def connect_camera(self):
         ##print("connect_camera")
         ##self.enable_disable_camera_btns(True)
-        if self.camera_connection !=None:
-           
-            self.ui.Camera_connection.setEnabled(False)
-            #self.camera_connection.Operations.start_grabbing()
-            self.set_message(
-                label_name=self.ui.Message_LiveView,
-                text="Connect to Camera Successfully",
-            )
-
-            self.ui.Stop_connection.setEnabled(True)
-            self.ui.live.setEnabled(True)
-
-        else :
-            self.set_message(
-            label_name=self.ui.Message_LiveView,
-            text="Please check the connection to the camera",
-        )
+        pass
     def disable_live(self):
         self.ui.live.setEnabled(False)
 
@@ -99,20 +112,7 @@ class LiveView_UI(Common_Function_UI):
 
 
     def disconnect_camera(self):  
-        
-        #print("disconnect_camera")
-        #self.enable_disable_camera_btns(False)
-        #print("self.camera_connection.Operations.stop_grabbing()")
-        #print(self.camera_connection.Operations.stop_grabbing())
-        ####################################################################   self.camera_connection.Operations.stop_grabbing()   ################################## Check whether is it work correct or not
-        #self.ui.Camera_connection.setEnabled(True)
-        self.set_message(
-            label_name=self.ui.Message_LiveView,
-            text="Disconnect to Camera Successfully",
-        )
-        self.ui.live.setEnabled(False)
-        self.ui.Stop_connection.setEnabled(False)
-        self.ui.Camera_connection.setEnabled(True)
+       pass
 
     def set_general_information(self, infoes: dict):
         for name, value in infoes.items():
@@ -121,6 +121,12 @@ class LiveView_UI(Common_Function_UI):
     def set_style_information(self, styles: dict):
         for name, value in styles.items():
             self.style_information_live[name].setStyleSheet(value)
+
+
+    def set_style_laser(self, styles: dict):
+          for name, value in styles.items():
+            self.style_information_laser[name].setStyleSheet(value)
+
 
     def set_Pixmap(self, img_data, w, h, bytes_per_line):
         convert_to_Qt_format = QImage(

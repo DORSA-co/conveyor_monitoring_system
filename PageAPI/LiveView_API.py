@@ -11,8 +11,12 @@ from Detection.Defect import (
 from Detection.defectTrackerClass import defectTracker
 
 import cv2
+import numpy as np
+from backend.Camera.dorsaPylon import Collector, Camera
 from backend.Camera import dorsaPylon
-from backend import camera_connection
+
+
+Blank_img = np.zeros((640,480),dtype='uint8')
 
 class LiveView_API:
 
@@ -21,7 +25,7 @@ class LiveView_API:
     :param
     """
 
-    def __init__(self, ui,db_Report,camera):
+    def __init__(self, ui,db_Report):
         self.ui_live = ui
         self.step = 2
         self.pix_mm_depth = 0.34
@@ -30,7 +34,7 @@ class LiveView_API:
         self.pix_mm_length = self.step * self.CONVAYER_SPEED / 400   #   750   
         self.frame_idx =  500 // self.step     #remove the error when the defect occur in th first place of frame
         #self.frame_idx = 0    #get error when the defect occur in th first place of frame
-      
+        self.collector = Collector() 
       
         self.db_Report=db_Report
         self.defect_tracker = defectTracker(min_g_thresh=120, step_per_line=2, db_Report=self.db_Report)   # min_g_thresh=  66   76
@@ -66,18 +70,21 @@ class LiveView_API:
             "gradient_number" :0
            
         }
-        self.camera=camera
+        #####self.camera=camera
         #self.cam = camera_connection.Collector(
         #     str(23287291), 217, 5000, 640, 480, 16, 16
         #)
         #self.result1, _ = self.cam.start_grabbing()
+        self.camera=None 
         self.button_connector()
         self.button_connector_QTimer()    ###################  for getting image from  camera
         self.button_connector_Stop()
-         
+
+
+        self.Error_img =0
 
     def button_connector(self,):
-        self.ui_live.button_connector(self.camera)    ############## for getting image from camera
+        self.ui_live.button_connector(self.connect_camera_API,self.dis_connect_camera_API)    ############## for getting image from camera
         ########self.ui_live.button_connector(self.start_selection)  # for getting image from folder
 
     def button_connector_QTimer(
@@ -125,12 +132,59 @@ class LiveView_API:
         bytes_per_line = ch * w
         self.ui_live.set_Pixmap(img.data, w, h, bytes_per_line)
 
+    def connect_camera_API(self):
+        self.camera = self.collector.get_camera_by_serial(str(23287291))    ###################  for getting image from  camera
+
+        if self.camera!=None:
+            self.camera.build_converter(pixel_type=dorsaPylon.PixelType.GRAY8)         ###################  for getting image from  camera
+            self.camera.Operations.start_grabbing()
+            self.ui_live.ui.Camera_connection.setEnabled(False)
+            self.ui_live.ui.Stop_connection.setEnabled(True)
+            self.ui_live.ui.live.setEnabled(True)
+            #self.camera_connection.Operations.start_grabbing()
+            self.ui_live.set_message(
+                label_name=self.ui_live.ui.Message_LiveView,
+                text="Connect to Camera Successfully",
+            )
+
+
+
+        else :
+            self.ui_live.set_message(
+            label_name=self.ui_live.ui.Message_LiveView,
+            text="Please check the connection to the camera",
+        )
+         
+
+
+    def dis_connect_camera_API(self):
+         
+        if self.camera!=None:
+         
+            self.camera.Operations.stop_grabbing()
+            self.camera.Operations.close()
+            self.camera=None
+            if self.ui_live.picktimer:
+             self.ui_live.picktimer.stop()
+     
+            self.ui_live.set_message(
+                label_name=self.ui_live.ui.Message_LiveView,
+                text="Disconnect to Camera Successfully",
+            )
+            self.ui_live.ui.live.setEnabled(False)
+            self.ui_live.ui.Stop_connection.setEnabled(False)
+            self.ui_live.ui.Camera_connection.setEnabled(True)
+            self.ui_live.ui.Stop.setEnabled(False)
+         
+
+
     def show_farme_camera(self):  ###################  for getting image from  the camera
         self.ui_live.disable_live()
         self.ui_live.enable_stop()
        
-
         if self.camera !=None:
+     
+
             #print("connect To camera on liveView_API")
 
             ##################  self.camera.build_converter(pixel_type=dorsaPylon.PixelType.GRAY8)         ###################  for getting image from  camera set on main_API
@@ -141,11 +195,16 @@ class LiveView_API:
             Exposure=self.parms_camera_liveView["Exposure"]
             Gain=self.parms_camera_liveView["Gain"]
 
-        
-
-            self.camera.Parms.set_exposureTime(Exposure)      # Get good answer for second version ----- 5000
-            self.camera.Parms.set_gain(Gain)  #217   #### get the good answer         # Get good answer for second version ----- 517
-            img = self.camera.getPictures()
+            try:
+                img = self.camera.getPictures()
+                self.Error_img=0
+            except:
+                img = Blank_img
+                self.Error_img+=1
+                if self.Error_img>=5:
+                    self.dis_connect_camera_API()
+                ###print('Cant Get Picture')
+          
 
             ###########  res,img = self.cam.getPictures()
             idx_Width_critical=self.parms_calibration_liveView["Width_critical"]
@@ -186,58 +245,69 @@ class LiveView_API:
 
             self.frame_idx = self.frame_idx + 1
 
-            res_img, s, Number_Defect, Number_of_Critical_Defect= defect_detection(
-                self.frame_idx, img,idx_gradient_number,idx_pix_length, idx_pix_width,idx_TEAR_DEPTH,idx_TEAR_GRADIENT_SIZE,idx_MAX_ERROR,idx_Depth_Critical,idx_Width_critical,idx_Lenght_Critical,idx_Depth_not_Critical,idx_Width_not_critical,idx_Lenght_not_Critical,idx_Depth_not_Critical_Max,idx_Width_not_critical_Max,idx_Lenght_not_Critical_Max,self.defect_tracker
-            )
-        
+            
+            res_img, s, Number_Defect, Number_of_Critical_Defect, falge_laser= defect_detection(
+                    self.frame_idx, img,idx_gradient_number,idx_pix_length, idx_pix_width,idx_TEAR_DEPTH,idx_TEAR_GRADIENT_SIZE,idx_MAX_ERROR,idx_Depth_Critical,idx_Width_critical,idx_Lenght_Critical,idx_Depth_not_Critical,idx_Width_not_critical,idx_Lenght_not_Critical,idx_Depth_not_Critical_Max,idx_Width_not_critical_Max,idx_Lenght_not_Critical_Max,self.defect_tracker
+                )
+            
+            if falge_laser :
+                    styles_Live_Laser = { "Laser": "background-color:rgb(47, 140, 68)"}
+                    self.ui_live.set_style_laser(styles_Live_Laser)
 
-            styles_Live = {
-                    "Not_Critical_live_view": "background-color:rgb(219, 219, 219)",
-                    "Critical_live_view": "background-color:rgb(219, 219, 219) ",
-                    "Normal_live_view": "background-color:rgb(47, 140, 68)",
-                }
-            self.ui_live.set_style_information(styles_Live)
-
-            if s != None:
-                    infoes_Live = {
-                            "Length": "{:.2f}".format(float(s[3] * self.pix_mm_length))
-                            + " "
-                            + "mm",
-                            "Width": "{:.2f}".format(float(s[2] * self.pix_mm_width))
-                            + " "
-                            + "mm",
-                            "Depth": "{:.2f}".format(float(s[4])) + " " + "mm",
-                            #"Depth": "{:.2f}".format(float(max_depth)) + " " + "mm",
-                            "Total_Number_Defect": str(Number_Defect),
-                            "Total_Number_Critical_defect": str(Number_of_Critical_Defect),
-                        }
-                    self.ui_live.set_general_information(infoes_Live)
-                    #print(max_depth)
-
-                    if float(s[4]) > idx_Depth_Critical and float(s[2] * self.pix_mm_width) > idx_Width_critical and  float(s[3] * self.pix_mm_length) > idx_Lenght_Critical:
-                        styles_Live = {
+                    styles_Live = {
                             "Not_Critical_live_view": "background-color:rgb(219, 219, 219)",
-                            "Critical_live_view": "background-color:rgb(218, 0, 0) ",
-                            "Normal_live_view": "background-color:rgb(219, 219, 219)",
+                            "Critical_live_view": "background-color:rgb(219, 219, 219) ",
+                            "Normal_live_view": "background-color:rgb(47, 140, 68)",
                         }
-                        self.ui_live.set_style_information(styles_Live)
+                    # self.ui_live.set_style_information(styles_Live)
+
+                    if s != None:
+                            infoes_Live = {
+                                    "Length": "{:.2f}".format(float(s[3] * self.pix_mm_length))
+                                    + " "
+                                    + "mm",
+                                    "Width": "{:.2f}".format(float(s[2] * self.pix_mm_width))
+                                    + " "
+                                    + "mm",
+                                    "Depth": "{:.2f}".format(float(s[4])) + " " + "mm",
+                                    #"Depth": "{:.2f}".format(float(max_depth)) + " " + "mm",
+                                    "Total_Number_Defect": str(Number_Defect),
+                                    "Total_Number_Critical_defect": str(Number_of_Critical_Defect),
+                                }
+                            self.ui_live.set_general_information(infoes_Live)
+                            #print(max_depth)
+
+                            if float(s[4]) > idx_Depth_Critical and float(s[2] * self.pix_mm_width) > idx_Width_critical and  float(s[3] * self.pix_mm_length) > idx_Lenght_Critical:
+                                styles_Live = {
+                                    "Not_Critical_live_view": "background-color:rgb(219, 219, 219)",
+                                    "Critical_live_view": "background-color:rgb(218, 0, 0) ",
+                                    "Normal_live_view": "background-color:rgb(219, 219, 219)",
+                                }
+                                # self.ui_live.set_style_information(styles_Live)
 
 
-                    else:
-                      if float(s[4]) > idx_Depth_not_Critical and float(s[4]) < idx_Depth_not_Critical_Max :
-                        if float(s[2] * self.pix_mm_width) > idx_Width_not_critical  and float(s[2] * self.pix_mm_width) < idx_Width_not_critical_Max :
-                          if float(s[3] * self.pix_mm_length) > idx_Lenght_not_Critical and float(s[3] * self.pix_mm_length) < idx_Lenght_not_Critical_Max:
-                        
-                            styles_Live = {
-                                "Not_Critical_live_view": "background-color:rgb(213, 213, 0)",
-                                "Critical_live_view": "background-color:rgb(219, 219, 219) ",
-                                "Normal_live_view": "background-color:rgb(219, 219, 219)",
-                            }
-                            self.ui_live.set_style_information(styles_Live)
+                            elif float(s[4]) > idx_Depth_not_Critical and float(s[4]) < idx_Depth_not_Critical_Max and float(s[2] * self.pix_mm_width) > idx_Width_not_critical  and float(s[2] * self.pix_mm_width) < idx_Width_not_critical_Max  and float(s[3] * self.pix_mm_length) > idx_Lenght_not_Critical and float(s[3] * self.pix_mm_length) < idx_Lenght_not_Critical_Max:
+                                
+                                    styles_Live = {
+                                        "Not_Critical_live_view": "background-color:rgb(213, 213, 0)",
+                                        "Critical_live_view": "background-color:rgb(219, 219, 219) ",
+                                        "Normal_live_view": "background-color:rgb(219, 219, 219)",
+                                    }
+                                    # self.ui_live.set_style_information(styles_Live)
 
 
 
-            self.show_image(res_img)
+                    self.show_image(res_img)
+
+            else:
+                    styles_Live_Laser = { "Laser": "background-color:rgb(218, 0, 0)"}
+                    self.ui_live.set_style_laser(styles_Live_Laser)
+
+
+
+
+        else :
+            print("error in connection")
 
     def set_initial_param_calibration(self, param_cal):      
         self.set_calibration_parms_API(param_cal)

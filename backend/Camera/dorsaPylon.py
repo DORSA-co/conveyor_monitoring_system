@@ -95,7 +95,7 @@ class Camera:
         self.image_event_handler = CameraImageEventHandler(self)
 
         self.converter = self.build_converter(PixelType.BGR8)
-        self.timeout = 5000
+        self.timeout = 50
 
     def reset(
         self,
@@ -167,9 +167,10 @@ class Camera:
         # -------------------------------------------------------------
         if grabResult is None:
             if self.Status.is_grabbing():
-                grabResult = self.camera_device.RetrieveResult(
-                    self.timeout, pylon.TimeoutHandling_ThrowException
-                )
+
+                    grabResult = self.camera_device.RetrieveResult(
+                        self.timeout, pylon.TimeoutHandling_ThrowException
+                    )
             else:
                 print(ErrorAndWarnings.not_grabbing())
         # -------------------------------------------------------------
@@ -187,8 +188,12 @@ class Camera:
         # -------------------------------------------------------------
         if res_img is None:
             if img_when_error == "zero":
-                res_img = self.build_zero_image()
-
+                try:
+                    res_img = self.build_zero_image()
+                except:
+                    print('Cant get image')
+                    res_img = np.zeros((640,480),dtype='uint8')
+        
         return res_img
 
 

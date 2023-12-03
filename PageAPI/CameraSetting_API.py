@@ -15,14 +15,14 @@ class CameraSetting_API:
     
     """
 
-    def __init__(self, ui,camera):
+    def __init__(self, ui):
         self.ui_cam = ui  # ui =self.ui.Page_CameraSetting    =====>  self.ui.Page_CameraSetting=CameraSetting_UI(self.ui)  on main_UI page
         self.button_connector()
         self.pre_laod_camera_parms()
         self.pre_laod_algorithm_parms()
         self.button_connector_camera()
 
-        self.camera=camera
+        #self.camera=camera
 
     def button_connector(self):
         self.ui_cam.button_connector(self.save_load_camera_param,self.Save_algorithm_parms,self.calculate_tear_depth)

@@ -111,6 +111,22 @@ class LiveView_UI(Common_Function_UI):
         self.ui.Stop.setEnabled(True)
 
 
+    def connect_Camera_liveView_button(self):
+            self.ui.Camera_connection.setEnabled(False)
+            self.ui.Stop_connection.setEnabled(True)
+            self.ui.live.setEnabled(True)
+
+
+
+
+    def disconnect_Camera_liveView_button(self):
+            if self.picktimer:
+             self.picktimer.stop()
+            self.ui.live.setEnabled(False)
+            self.ui.Stop_connection.setEnabled(False)
+            self.ui.Camera_connection.setEnabled(True)
+            self.ui.Stop.setEnabled(False)
+        
     def disconnect_camera(self):  
        pass
 
@@ -126,6 +142,15 @@ class LiveView_UI(Common_Function_UI):
     def set_style_laser(self, styles: dict):
           for name, value in styles.items():
             self.style_information_laser[name].setStyleSheet(value)
+
+
+
+    def set_Meassage_on_API(self, text_on_UI):
+            self.set_message(
+                label_name=self.ui.Message_LiveView,
+                text=text_on_UI,
+            )
+
 
 
     def set_Pixmap(self, img_data, w, h, bytes_per_line):

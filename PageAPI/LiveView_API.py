@@ -138,45 +138,26 @@ class LiveView_API:
         if self.camera!=None:
             self.camera.build_converter(pixel_type=dorsaPylon.PixelType.GRAY8)         ###################  for getting image from  camera
             self.camera.Operations.start_grabbing()
-            self.ui_live.ui.Camera_connection.setEnabled(False)
-            self.ui_live.ui.Stop_connection.setEnabled(True)
-            self.ui_live.ui.live.setEnabled(True)
-            #self.camera_connection.Operations.start_grabbing()
-            self.ui_live.set_message(
-                label_name=self.ui_live.ui.Message_LiveView,
-                text="Connect to Camera Successfully",
-            )
-
-
+            self.camera.Parms.set_exposureTime(5000)
+            self.camera.Parms.set_gain(217)  #217   #### get the good answer
+            self.ui_live.connect_Camera_liveView_button()
+            self.ui_live.set_Meassage_on_API("Connect to Camera Successfully")
 
         else :
-            self.ui_live.set_message(
-            label_name=self.ui_live.ui.Message_LiveView,
-            text="Please check the connection to the camera",
-        )
+
+            self.ui_live.set_Meassage_on_API("Please check the connection to the camera")
          
 
 
     def dis_connect_camera_API(self):
          
         if self.camera!=None:
-         
             self.camera.Operations.stop_grabbing()
             self.camera.Operations.close()
             self.camera=None
-            if self.ui_live.picktimer:
-             self.ui_live.picktimer.stop()
-     
-            self.ui_live.set_message(
-                label_name=self.ui_live.ui.Message_LiveView,
-                text="Disconnect to Camera Successfully",
-            )
-            self.ui_live.ui.live.setEnabled(False)
-            self.ui_live.ui.Stop_connection.setEnabled(False)
-            self.ui_live.ui.Camera_connection.setEnabled(True)
-            self.ui_live.ui.Stop.setEnabled(False)
-         
-
+            self.ui_live.disconnect_Camera_liveView_button()
+            self.ui_live.set_Meassage_on_API("Disconnect to Camera Successfully")
+             
 
     def show_farme_camera(self):  ###################  for getting image from  the camera
         self.ui_live.disable_live()

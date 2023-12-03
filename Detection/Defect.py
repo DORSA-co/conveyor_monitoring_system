@@ -9,7 +9,7 @@ from scipy.optimize import curve_fit
 
 
 
-res = np.zeros((500, 640, 3), dtype=np.uint8)
+res = np.zeros((300, 640, 3), dtype=np.uint8)
 depth_img = np.zeros(res.shape[:2], dtype=np.float32)
 
 pix_mm_depth = 0.34

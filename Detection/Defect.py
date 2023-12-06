@@ -9,13 +9,13 @@ from scipy.optimize import curve_fit
 
 
 
-res = np.zeros((300, 640, 3), dtype=np.uint8)
+res = np.zeros((500, 640, 3), dtype=np.uint8)
 depth_img = np.zeros(res.shape[:2], dtype=np.float32)
 
 pix_mm_depth = 0.34
 step=2
 #frame_idx = 0     #get error when the defect occur in th first place of frame
-frame_idx = 500 // step  #remove the error when the defect occur in th first place of frame
+#frame_idx = 1000 // step  #remove the error when the defect occur in th first place of frame
 
 
 def defect_detection_find_max(fname,idx_TEAR_DEPTH):
@@ -28,7 +28,7 @@ def defect_detection_find_max(fname,idx_TEAR_DEPTH):
     
     pts = ConvayerBase.extract_points(
                 img,
-                thresh=100,
+                thresh=200,
                 perspective_angle=60,
                 min_tear_lenght=2,
                 tear_depth=idx_TEAR_DEPTH   ####### 570    ####################   470
@@ -168,7 +168,7 @@ def defect_detection(frame_idx,fname,idx_gradient_number,idx_pix_length, idx_pix
                 res, depth_img=depth_img, pix_length=idx_pix_length, pix_width=idx_pix_width, Critical_Depth1=idx_Depth_Critical ,Critical_Width=idx_Width_critical,Critical_Lenght=idx_Lenght_Critical ,
                 not_Critical_Depth1=idx_Depth_not_Critical,not_Critical_Width=idx_Width_not_critical,not_Critical_Lenght=idx_Lenght_not_Critical,  not_Critical_Depth1_Max=idx_Depth_not_Critical_Max,not_Critical_Width_Max=idx_Width_not_critical_Max,not_Critical_Lenght_Max=idx_Lenght_not_Critical_Max,  #Critical_Depth=10
                 )
-        res_draw = defect_tracker.draw(res)
+        res_draw = defect_tracker.draw(res,depth_img)
 
         s = defect_tracker.function_inprogress_defects_cnts_x_y_w_h(
                     depth_img=depth_img, img=res

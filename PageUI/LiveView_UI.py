@@ -37,6 +37,12 @@ class LiveView_UI(Common_Function_UI):
 
         }
 
+        self.style_information_Camera={
+
+         "Camera" : self.ui.Laser_Connection_Check
+
+        }
+
         self.ui.Stop_connection.setEnabled(False)
         self.ui.live.setEnabled(False)
         self.ui.Stop.setEnabled(False)
@@ -86,7 +92,8 @@ class LiveView_UI(Common_Function_UI):
         self.picktimer = QTimer()
         #self.picktimer.setInterval(0.001)
         self.picktimer.timeout.connect(fun)
-        self.picktimer.start(25)
+        #self.picktimer.start(20)
+        self.picktimer.start(5)
 
 
        ################ self.time = QTimer()
@@ -142,6 +149,13 @@ class LiveView_UI(Common_Function_UI):
     def set_style_laser(self, styles: dict):
           for name, value in styles.items():
             self.style_information_laser[name].setStyleSheet(value)
+
+
+    def set_style_Camera(self, styles: dict):
+          for name, value in styles.items():
+            self.style_information_Camera[name].setStyleSheet(value)
+
+
 
 
 

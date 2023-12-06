@@ -28,6 +28,7 @@ class mainUI:
         self.common_func=Common_Function_UI()
         self.activate_()
         self.laod_table_parms()
+        
 
 
     def laod_table_parms(self):

@@ -1,5 +1,6 @@
 import cv2
 import os
+import time
 from PyQt5.QtCore import QTimer
 from Detection.Defect import (
     defect_detection,
@@ -32,7 +33,9 @@ class LiveView_API:
         self.pix_mm_width = 140 / 590
         self.CONVAYER_SPEED = 120  # mm/s
         self.pix_mm_length = self.step * self.CONVAYER_SPEED / 400   #   750   
-        self.frame_idx =  500 // self.step     #remove the error when the defect occur in th first place of frame
+        self.frame_idx = 500 // self.step     #remove the error when the defect occur in th first place of frame
+        self.refresh_rate = 5
+        #self.refresh_rate = 1
         #self.frame_idx = 0    #get error when the defect occur in th first place of frame
         self.collector = Collector() 
       
@@ -80,6 +83,8 @@ class LiveView_API:
         self.button_connector_QTimer()    ###################  for getting image from  camera
         self.button_connector_Stop()
 
+        styles_Live_Camera = { "Camera": "background-color:rgb(218, 0, 0)"}
+        self.ui_live.set_style_Camera(styles_Live_Camera)
 
         self.Error_img =0
 
@@ -134,24 +139,36 @@ class LiveView_API:
 
     def connect_camera_API(self):
         self.camera = self.collector.get_camera_by_serial(str(23287291))    ###################  for getting image from  camera
+        try:
+            if self.camera!=None: #and self.camera:
+                styles_Live_Camera = { "Camera": "background-color:rgb(47, 140, 68)"}
 
-        if self.camera!=None:
-            self.camera.build_converter(pixel_type=dorsaPylon.PixelType.GRAY8)         ###################  for getting image from  camera
-            self.camera.Operations.start_grabbing()
-            self.camera.Parms.set_exposureTime(5000)
-            self.camera.Parms.set_gain(217)  #217   #### get the good answer
-            self.ui_live.connect_Camera_liveView_button()
-            self.ui_live.set_Meassage_on_API("Connect to Camera Successfully")
+                self.ui_live.set_style_Camera(styles_Live_Camera)
 
-        else :
+                self.camera.build_converter(pixel_type=dorsaPylon.PixelType.GRAY8)         ###################  for getting image from  camera
+                self.camera.Operations.start_grabbing()
+                self.camera.Parms.set_exposureTime(1000)
+                self.camera.Parms.set_gain(217)  #217   #### get the good answer
+                self.camera.Parms.set_transportlayer(packet_delay=16000)
+                self.ui_live.connect_Camera_liveView_button()
+                self.ui_live.set_Meassage_on_API("Connect to Camera Successfully")
 
-            self.ui_live.set_Meassage_on_API("Please check the connection to the camera")
-         
+            else :
+
+                self.ui_live.set_Meassage_on_API("Please check the connection to the camera")
+            
+
+        except:
+             print('Cant get camera')
 
 
     def dis_connect_camera_API(self):
          
         if self.camera!=None:
+            styles_Live_Camera = { "Camera": "background-color:rgb(218, 0, 0)"}
+            self.ui_live.set_style_Camera(styles_Live_Camera)
+
+
             self.camera.Operations.stop_grabbing()
             self.camera.Operations.close()
             self.camera=None
@@ -160,6 +177,8 @@ class LiveView_API:
              
 
     def show_farme_camera(self):  ###################  for getting image from  the camera
+        
+        t1=time.time()
         self.ui_live.disable_live()
         self.ui_live.enable_stop()
        
@@ -173,8 +192,7 @@ class LiveView_API:
             ##################  self.camera.Parms.set_exposureTime(5000)
             ##################  self.camera.Parms.set_gain(517)  #217   #### get the good answer
 
-            Exposure=self.parms_camera_liveView["Exposure"]
-            Gain=self.parms_camera_liveView["Gain"]
+
 
             try:
                 img = self.camera.getPictures()
@@ -184,6 +202,8 @@ class LiveView_API:
                 self.Error_img+=1
                 if self.Error_img>=5:
                     self.dis_connect_camera_API()
+
+                return
                 ###print('Cant Get Picture')
           
 
@@ -242,7 +262,7 @@ class LiveView_API:
                         }
                     # self.ui_live.set_style_information(styles_Live)
 
-                    if s != None:
+                    if s != None and self.frame_idx % self.refresh_rate == 0:
                             infoes_Live = {
                                     "Length": "{:.2f}".format(float(s[3] * self.pix_mm_length))
                                     + " "
@@ -277,8 +297,8 @@ class LiveView_API:
                                     # self.ui_live.set_style_information(styles_Live)
 
 
-
-                    self.show_image(res_img)
+                    if self.frame_idx % self.refresh_rate == 0: 
+                        self.show_image(res_img)
 
             else:
                     styles_Live_Laser = { "Laser": "background-color:rgb(218, 0, 0)"}
@@ -289,6 +309,10 @@ class LiveView_API:
 
         else :
             print("error in connection")
+
+        #t1= t1 - time.time()
+       # print(t1)
+
 
     def set_initial_param_calibration(self, param_cal):      
         self.set_calibration_parms_API(param_cal)

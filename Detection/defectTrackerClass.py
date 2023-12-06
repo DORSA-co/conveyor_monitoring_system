@@ -10,7 +10,7 @@ PATH_of_SAVE_IMAGE="Detection/image6/imagess_"
 
 class Defect:
     DECIMAL = 2
-    
+
     def __init__(self, cnt, image, depth_image, w_px2mm=1, h_px2mm=1, d_px2mm=1) -> None:
         self.cnt = cnt
 
@@ -196,7 +196,9 @@ class defectTracker:
                             )
                         self.number_of_defect = self.number_of_defect + 1
                 else:
-                    self.inprogress_defects_cnts.append(cnt)
+                    defect = Defect(cnt, image=img,  depth_image=depth_img, w_px2mm=pix_width, h_px2mm=pix_length, d_px2mm=1)
+                    #self.complete_defects.append(defect)
+                    self.inprogress_defects_cnts.append(defect)
                    
 
             else:  # or perimeter > 100:
@@ -228,7 +230,7 @@ class defectTracker:
         all_cnts = self.inprogress_defects_cnts + self.complete_defects
         #all_cnts2 = self.inprogress_defects_cnts2
         h_img, w_img = img.shape[:2]
-        for defect in self.complete_defects:
+        for defect in self.complete_defects+self.inprogress_defects_cnts:
             x, y, w, h = cv2.boundingRect(defect.cnt)
             
 

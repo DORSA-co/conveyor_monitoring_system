@@ -161,6 +161,7 @@ def defect_detection(frame_idx,fname,idx_gradient_number,idx_pix_length, idx_pix
                     error_y * pix_mm_depth
                 )
 
+
         # max_depth=self.defect_tracker.get_defect_infoes(depth_img=self.depth_img,img=self.res)
 
         frame_idx += 1

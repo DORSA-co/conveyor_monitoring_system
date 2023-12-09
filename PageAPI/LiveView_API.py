@@ -33,7 +33,7 @@ class LiveView_API:
         self.pix_mm_width = 140 / 590
         self.CONVAYER_SPEED = 120  # mm/s
         self.pix_mm_length = self.step * self.CONVAYER_SPEED / 400   #   750   
-        self.frame_idx = 500 // self.step     #remove the error when the defect occur in th first place of frame
+        self.frame_idx = 1000 // self.step     #remove the error when the defect occur in th first place of frame
         self.refresh_rate = 5
         #self.refresh_rate = 1
         #self.frame_idx = 0    #get error when the defect occur in th first place of frame

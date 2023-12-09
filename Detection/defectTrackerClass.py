@@ -74,10 +74,10 @@ class defectTracker:
         #######self.pix_mm_depth = 0.4
         self.pix_mm_depth = 0.34
         # self.pix_mm_width = 140 / 640
-        self.pix_mm_width = 140 / 590
+        self.pix_mm_width = (140 / 590) *3.2
         self.CONVAYER_SPEED = 120  # mm/s
         ######self.pix_mm_length = self.step * self.CONVAYER_SPEED / 1000
-        self.pix_mm_length = self.step * self.CONVAYER_SPEED / 400   ############## 750
+        self.pix_mm_length = (self.step * self.CONVAYER_SPEED / 400 ) * 1.4 ############## 750
         self.db_Report = db_Report
         self.max_depth=0
 
@@ -127,7 +127,7 @@ class defectTracker:
                     y + h < h_img - self.min_g_thresh
                 ):  # if the defect is completed, then we add it to complete_defects list
                     # {"bbox": (x, y, w, h), "cnt": cnt}
-                    defect = Defect(cnt, image=img,  depth_image=depth_img, w_px2mm=pix_width, h_px2mm=pix_length, d_px2mm=1)
+                    defect = Defect(cnt, image=img,  depth_image=depth_img, w_px2mm=pix_width, h_px2mm=pix_length, d_px2mm=0.34)
                     self.complete_defects.append(defect)
                     #self.total_complete_defects.append(cnt)
 
@@ -196,7 +196,7 @@ class defectTracker:
                             )
                         self.number_of_defect = self.number_of_defect + 1
                 else:
-                    defect = Defect(cnt, image=img,  depth_image=depth_img, w_px2mm=pix_width, h_px2mm=pix_length, d_px2mm=1)
+                    defect = Defect(cnt, image=img,  depth_image=depth_img, w_px2mm=pix_width, h_px2mm=pix_length, d_px2mm=.34)
                     #self.complete_defects.append(defect)
                     self.inprogress_defects_cnts.append(defect)
                    
@@ -224,7 +224,7 @@ class defectTracker:
 
     #  return res
 
-    def draw(self, img,depth_img, color=(0, 0, 255), thickness=2):
+    def draw(self, img,depth_img, color=(0, 0, 255), thickness=1):
         res = img.copy()
         res = cv2.blur(res, (3, 3))
         all_cnts = self.inprogress_defects_cnts + self.complete_defects

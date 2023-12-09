@@ -30,9 +30,9 @@ class LiveView_API:
         self.ui_live = ui
         self.step = 2
         self.pix_mm_depth = 0.34
-        self.pix_mm_width = 140 / 590
+        self.pix_mm_width = (140 / 590)  * 3.2
         self.CONVAYER_SPEED = 120  # mm/s
-        self.pix_mm_length = self.step * self.CONVAYER_SPEED / 400   #   750   
+        self.pix_mm_length = (self.step * self.CONVAYER_SPEED / 400 )  * 1.4  #   750   
         self.frame_idx = 1000 // self.step     #remove the error when the defect occur in th first place of frame
         self.refresh_rate = 5
         #self.refresh_rate = 1
@@ -147,7 +147,7 @@ class LiveView_API:
 
                 self.camera.build_converter(pixel_type=dorsaPylon.PixelType.GRAY8)         ###################  for getting image from  camera
                 self.camera.Operations.start_grabbing()
-                self.camera.Parms.set_exposureTime(1000)
+                self.camera.Parms.set_exposureTime(1500)
                 self.camera.Parms.set_gain(217)  #217   #### get the good answer
                 self.camera.Parms.set_transportlayer(packet_delay=16000)
                 self.ui_live.connect_Camera_liveView_button()
@@ -240,8 +240,8 @@ class LiveView_API:
             idx_gradient_number=self.parms_algorithm_liveView["gradient_number"]
     
            
-            self.pix_mm_length=idx_pix_length
-            self.pix_mm_width= idx_pix_width
+            #self.pix_mm_length=idx_pix_length
+            #self.pix_mm_width= idx_pix_width
         
 
             self.frame_idx = self.frame_idx + 1
@@ -270,7 +270,7 @@ class LiveView_API:
                                     "Width": "{:.2f}".format(float(s[2] * self.pix_mm_width))
                                     + " "
                                     + "mm",
-                                    "Depth": "{:.2f}".format(float(s[4])) + " " + "mm",
+                                    "Depth": "{:.2f}".format(float(s[4])*0.34) + " " + "mm",
                                     #"Depth": "{:.2f}".format(float(max_depth)) + " " + "mm",
                                     "Total_Number_Defect": str(Number_Defect),
                                     "Total_Number_Critical_defect": str(Number_of_Critical_Defect),

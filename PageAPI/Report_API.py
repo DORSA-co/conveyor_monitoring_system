@@ -12,9 +12,9 @@ class Report_API:
         self.ui_re = ui
         self.step = 2
         self.pix_mm_depth = 0.34
-        self.pix_mm_width = 140 / 590
+        self.pix_mm_width = (140 / 590)  * 3
         self.CONVAYER_SPEED = 120  # mm/s
-        self.pix_mm_length = self.step * self.CONVAYER_SPEED / 400    ########### 750    
+        self.pix_mm_length = (self.step * self.CONVAYER_SPEED / 400 ) * 1.2   ########### 750    
         self.db_report=db
         #self.db_report = databaseManager(
         #    "root", "dorsa-co", "localhost", "test_database"
